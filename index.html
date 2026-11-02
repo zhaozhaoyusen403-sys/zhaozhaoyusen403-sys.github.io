@@ -1,0 +1,2964 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#faf7f2">
+<title>日本語タイピング — 日语单词打字练习</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#faf7f2;--card:#fff;--ink:#26221d;--muted:#948d80;
+  --accent:#d0402f;--accent-soft:#fdece8;--accent-dim:#f5b9b0;
+  --green:#3d9970;--green-soft:#e6f4ed;
+  --border:#ece6dc;--shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.05);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+#app{min-height:100%;display:flex;flex-direction:column;padding-bottom:78px}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;background:rgba(250,247,242,.88);
+  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .2s}
+.topbar.scrolled{border-bottom-color:var(--border)}
+.brand{font-size:16px;font-weight:700;letter-spacing:.02em}
+.brand span{color:var(--accent);font-weight:800}
+.mini-stat{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+main{flex:1;position:relative}
+.page{display:none;padding:8px 16px 24px;animation:fade .22s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-title{font-size:20px;font-weight:800;margin:12px 2px 4px}
+.page-sub{font-size:13px;color:var(--muted);margin:0 2px 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--ink)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:7px 14px;border-radius:99px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);font-size:12.5px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:.15s;white-space:nowrap}
+.chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.practice-card{padding:22px 20px 18px;min-height:330px;display:flex;flex-direction:column}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:8px;
+  background:#f2ece2;color:#8a7f6d;letter-spacing:.03em}
+.badge.lv{background:var(--accent-soft);color:var(--accent)}
+.badge.count{margin-left:auto;background:#f0f4f0;color:#6b7d6f}
+.meaning{font-size:15px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.kanji{font-size:42px;font-weight:800;line-height:1.2;letter-spacing:.04em;
+  margin-bottom:10px;word-break:break-all}
+.kana{font-size:22px;font-weight:600;color:var(--accent-dim);letter-spacing:.14em;
+  min-height:32px;margin-bottom:16px;transition:color .18s,opacity .18s}
+.kana.revealed{color:var(--accent)}
+.kana.placeholder{color:#ded6c9;font-size:20px}
+#answer{width:100%;font-size:20px;font-weight:600;letter-spacing:.05em;padding:14px 16px;
+  border-radius:14px;border:2px solid var(--border);background:#fbf9f5;color:var(--ink);
+  outline:none;transition:border-color .15s,background .15s,box-shadow .15s;font-family:inherit}
+#answer::placeholder{color:#c9c1b3;font-weight:400;font-size:16px;letter-spacing:0}
+#answer:focus{border-color:var(--accent-dim);background:#fff;box-shadow:0 0 0 4px rgba(208,64,47,.07)}
+#answer.wrong{border-color:#e76f61;background:#fef5f4;animation:shake .28s}
+#answer.correct{border-color:var(--green);background:var(--green-soft);color:#2c7a55}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{font-size:13px;font-weight:600;min-height:20px;margin-top:10px;color:var(--muted)}
+.feedback.wrong{color:#d9534f}
+.feedback.correct{color:var(--green)}
+.card-actions{display:flex;gap:10px;margin-top:auto;padding-top:14px}
+.btn-ghost{flex:1;padding:11px;border-radius:12px;border:1px solid var(--border);
+  background:#fff;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:.15s}
+.btn-ghost:active{background:#f5f1ea;transform:scale(.98)}
+.tip-line{text-align:center;font-size:12px;color:#b8b0a2;margin-top:14px;line-height:1.6}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:16px 14px;box-shadow:var(--shadow)}
+.stat-num{font-size:26px;font-weight:800;color:var(--accent);
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.stat-label{font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:500}
+.row-between{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:13px;font-weight:600;margin-bottom:10px}
+.row-between span:last-child{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.bar{height:9px;border-radius:99px;background:#f0ebe2;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#e07a5f,var(--accent));
+  transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.lvrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px}
+.lvrow:last-child{margin-bottom:0}
+.lvname{width:44px;font-weight:700;color:var(--muted);flex-shrink:0}
+.lvbar{flex:1;height:7px;border-radius:99px;background:#f0ebe2;overflow:hidden}
+.lvbar>div{height:100%;background:var(--accent-dim);border-radius:99px;transition:width .4s}
+.lvnum{width:70px;text-align:right;color:var(--muted);
+  font-variant-numeric:tabular-nums;font-size:11.5px;flex-shrink:0}
+.wordrow{display:flex;align-items:center;gap:8px;padding:9px 0;
+  border-bottom:1px solid #f5f1ea;font-size:13px}
+.wordrow:last-child{border-bottom:none}
+.wordrow .wk{font-weight:700;min-width:74px}
+.wordrow .wy{color:var(--accent);font-size:12px;flex:1}
+.wordrow .wn{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.empty{color:#c0b8aa;font-size:13px;text-align:center;padding:16px 0}
+.add-form .field{margin-bottom:10px}
+.add-form label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.add-form input,.add-form select{width:100%;padding:11px 13px;border-radius:12px;
+  border:1.5px solid var(--border);background:#fbf9f5;font-size:14px;color:var(--ink);
+  outline:none;font-family:inherit;transition:.15s}
+.add-form input:focus,.add-form select:focus{border-color:var(--accent-dim);background:#fff}
+.add-form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;padding:13px;border-radius:13px;border:none;background:var(--accent);
+  color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+  margin-top:6px;transition:.15s}
+.btn:active{transform:scale(.985);filter:brightness(.95)}
+.btn.sec{background:#f2ece2;color:#6b6255}
+.btn.danger{background:#fff;color:#d9534f;border:1px solid #f0cfcb}
+textarea{width:100%;min-height:110px;padding:12px;border-radius:12px;
+  border:1.5px solid var(--border);background:#fbf9f5;
+  font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.6;
+  outline:none;resize:vertical;color:var(--ink)}
+textarea:focus{border-color:var(--accent-dim);background:#fff}
+.searchbar{display:flex;gap:8px;margin-bottom:10px}
+.searchbar input{flex:1;padding:10px 13px;border-radius:12px;border:1.5px solid var(--border);
+  background:#fbf9f5;font-size:13px;outline:none;font-family:inherit}
+.searchbar input:focus{border-color:var(--accent-dim);background:#fff}
+.lib-item{display:flex;align-items:center;gap:9px;padding:10px 2px;
+  border-bottom:1px solid #f5f1ea;font-size:13px}
+.lib-item:last-child{border-bottom:none}
+.lib-main{flex:1;min-width:0}
+.lib-w{font-weight:700;font-size:14px}
+.lib-w .lib-k{font-size:11.5px;color:var(--accent);font-weight:600;margin-left:6px}
+.lib-m{font-size:11.5px;color:var(--muted);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;
+  background:#f2ece2;color:#8a7f6d;flex-shrink:0}
+.lib-tag.custom{background:var(--accent-soft);color:var(--accent)}
+.lib-btn{border:none;background:none;font-size:15px;cursor:pointer;padding:4px;
+  color:var(--muted);flex-shrink:0;font-family:inherit}
+.lib-btn.del{color:#d9534f}
+.lib-load{width:100%;padding:11px;border-radius:12px;border:1px dashed var(--border);
+  background:none;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;
+  font-family:inherit;margin-top:10px}
+.uni{background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:16px;margin-bottom:12px;box-shadow:var(--shadow);display:flex;
+  gap:14px;position:relative;overflow:hidden}
+.uni::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--accent),#e8a598)}
+.uni-rank{font-size:22px;font-weight:900;color:var(--accent-dim);
+  font-variant-numeric:tabular-nums;line-height:1;min-width:30px;padding-top:3px}
+.uni-body{flex:1;min-width:0}
+.uni-ja{font-size:17px;font-weight:800;letter-spacing:.02em}
+.uni-kana{font-size:11.5px;color:var(--accent);letter-spacing:.08em;margin-top:3px}
+.uni-cn{font-size:12px;color:var(--muted);margin-top:5px;font-weight:600}
+.uni-desc{font-size:12.5px;color:#7d7466;line-height:1.65;margin-top:8px}
+.uni-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 8px;
+  border-radius:7px;background:#f2ece2;color:#8a7f6d;margin-top:10px;letter-spacing:.03em}
+.uni-tag.private{background:#eef2f8;color:#5f7591}
+.setting-row{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid #f5f1ea;font-size:14px;font-weight:600}
+.setting-row:last-child{border-bottom:none}
+.setting-desc{font-size:11.5px;color:var(--muted);font-weight:400;margin-top:3px}
+.switch{position:relative;width:48px;height:28px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.slider{position:absolute;inset:0;border-radius:99px;background:#e2dcd1;
+  transition:.22s;cursor:pointer}
+.slider::before{content:'';position:absolute;width:22px;height:22px;border-radius:50%;
+  background:#fff;left:3px;top:3px;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.switch input:checked + .slider{background:var(--accent)}
+.switch input:checked + .slider::before{transform:translateX(20px)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;
+  grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);
+  border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;
+  border:none;background:none;cursor:pointer;color:#b3aa9b;font-size:10px;
+  font-weight:600;font-family:inherit;transition:color .18s}
+.tab svg{width:20px;height:20px;stroke-width:1.9}
+.tab.active{color:var(--accent)}
+#milestone{position:fixed;inset:0;z-index:200;display:none;align-items:center;
+  justify-content:center;padding:24px;background:rgba(38,34,29,.45);
+  backdrop-filter:blur(4px)}
+#milestone.show{display:flex;animation:fade .2s}
+.ms-box{background:#fff;border-radius:24px;padding:32px 26px;max-width:340px;
+  width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.22);
+  animation:pop .38s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{transform:scale(.86);opacity:0}to{transform:scale(1);opacity:1}}
+.ms-icon{font-size:46px;margin-bottom:12px;line-height:1}
+.ms-title{font-size:19px;font-weight:800;color:var(--accent);margin-bottom:10px}
+.ms-msg{font-size:14px;color:#6f6658;line-height:1.8}
+.ms-btn{margin-top:22px;width:100%;padding:13px;border-radius:13px;border:none;
+  background:var(--accent);color:#fff;font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);
+  background:rgba(38,34,29,.92);color:#fff;padding:10px 20px;border-radius:99px;
+  font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;
+  z-index:150;white-space:nowrap;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar" id="topbar">
+    <div class="brand">日本語<span>タイピング</span></div>
+    <div class="mini-stat" id="miniStat">今日 0 词</div>
+  </header>
+
+  <main>
+    <section class="page active" id="page-practice">
+      <div class="chips" id="practiceChips"></div>
+      <div class="card practice-card">
+        <div class="badges">
+          <span class="badge lv" id="badgeLv">N5</span>
+          <span class="badge" id="badgeCat">基础</span>
+          <span class="badge count" id="badgeCount">练习 0 次</span>
+        </div>
+        <div class="meaning" id="meaning">—</div>
+        <div class="kanji" id="kanji">—</div>
+        <div class="kana" id="kana">· · ·</div>
+        <input id="answer" type="text" placeholder="输入假名 或 罗马字"
+               autocomplete="off" autocorrect="off" autocapitalize="off"
+               spellcheck="false" enterkeyhint="done">
+        <div class="feedback" id="feedback"></div>
+        <div class="card-actions">
+          <button class="btn-ghost" id="btnHint">提示假名</button>
+          <button class="btn-ghost" id="btnSkip">跳过</button>
+        </div>
+      </div>
+      <div class="tip-line">
+        支持罗马字输入（如 <b>taberu</b> → たべる）或直接输入假名<br>
+        到「词库」页可批量导入自己的单词，一次可粘贴上千条
+      </div>
+    </section>
+
+    <section class="page" id="page-library">
+      <div class="page-title">词库管理</div>
+      <div class="page-sub" id="libSub">内置高频词 + 自定义词，可继续扩充至 4000+</div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="libTotal">0</div><div class="stat-label">词库总词数</div></div>
+        <div class="stat-card"><div class="stat-num" id="libCustom">0</div><div class="stat-label">自定义单词</div></div>
+        <div class="stat-card"><div class="stat-num" id="libLearned">0</div><div class="stat-label">已学习词数</div></div>
+        <div class="stat-card"><div class="stat-num" id="libCover">0%</div><div class="stat-label">词库覆盖率</div></div>
+      </div>
+
+      <div class="card add-form">
+        <h3 id="formTitle">➕ 添加新单词</h3>
+        <div class="field">
+          <label>单词（汉字 / 假名 / 英文）*</label>
+          <input id="fWord" type="text" placeholder="例：環境 / たべる / AI">
+        </div>
+        <div class="field">
+          <label>假名读音（平假名）*</label>
+          <input id="fKana" type="text" placeholder="例：かんきょう">
+        </div>
+        <div class="field">
+          <label>中文翻译 *</label>
+          <input id="fMean" type="text" placeholder="例：环境">
+        </div>
+        <div class="two">
+          <div class="field">
+            <label>等级</label>
+            <select id="fLevel">
+              <option>N5</option><option>N4</option><option>N3</option>
+              <option>N2</option><option>N1</option><option>EJU</option>
+              <option>日常</option><option>自定义</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>分类（可选）</label>
+            <input id="fCat" type="text" placeholder="例：科技 / 动词">
+          </div>
+        </div>
+        <button class="btn" id="btnSaveWord">添加单词</button>
+        <button class="btn sec" id="btnCancelEdit" style="display:none">取消编辑</button>
+      </div>
+
+      <div class="card">
+        <h3>📥 批量导入（支持上千条）</h3>
+        <div class="setting-desc" style="margin-bottom:10px">
+          每行一个，格式：<b>汉字|假名|中文|等级|分类</b><br>
+          等级与分类可省略。也可用逗号分隔。<br>
+          例：<code>持続可能|じぞくかのう|可持续|EJU|环境</code>
+        </div>
+        <textarea id="importArea" placeholder="持続可能|じぞくかのう|可持续|EJU|环境
+再帰|さいき|递归|N2|计算机
+環境,かんきょう,环境,N3"></textarea>
+        <div class="setting-desc" id="importPreview" style="margin-top:8px">尚未解析</div>
+        <button class="btn" id="btnImport">解析并导入</button>
+      </div>
+
+      <div class="card">
+        <h3>🔍 词条列表</h3>
+        <div class="searchbar">
+          <input id="libSearch" type="text" placeholder="搜索汉字 / 假名 / 中文…">
+        </div>
+        <div class="chips" id="libChips" style="padding-bottom:8px"></div>
+        <div id="libList"></div>
+        <button class="lib-load" id="libLoadMore" style="display:none">显示更多</button>
+      </div>
+    </section>
+
+    <section class="page" id="page-progress">
+      <div class="page-title">学习记录</div>
+      <div class="page-sub" id="progressSub">今天也是积累的一天</div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="sTodayWords">0</div><div class="stat-label">今日练习词数</div></div>
+        <div class="stat-card"><div class="stat-num" id="sTodayReps">0</div><div class="stat-label">今日练习次数</div></div>
+        <div class="stat-card"><div class="stat-num" id="sLearned">0</div><div class="stat-label">已学习单词</div></div>
+        <div class="stat-card"><div class="stat-num" id="sTotalReps">0</div><div class="stat-label">累计练习次数</div></div>
+      </div>
+
+      <div class="card">
+        <div class="row-between"><span>词库覆盖进度</span><span id="progText">0 / 0</span></div>
+        <div class="bar"><div class="bar-fill" id="progBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="card">
+        <h3>分级进度</h3>
+        <div id="levelStats"></div>
+      </div>
+
+      <div class="card">
+        <h3>练习最多的单词</h3>
+        <div id="topWords"><div class="empty">还没有练习记录</div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-uni">
+      <div class="page-title">日本顶尖大学</div>
+      <div class="page-sub">你的目标，从今天的一个单词开始</div>
+      <div id="uniList"></div>
+      <div class="tip-line" style="margin-bottom:8px">加油，今天多背一个词，就离那里近一步。</div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="page-title">设置</div>
+      <div class="page-sub">练习方式与数据管理</div>
+
+      <div class="card">
+        <div class="setting-row">
+          <div>常显假名<div class="setting-desc">开启后每次都显示读音，适合纯打字练习</div></div>
+          <label class="switch"><input type="checkbox" id="swKana"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>自动跳到下一题<div class="setting-desc">答对后自动换词，关闭则需点「下一题」</div></div>
+          <label class="switch"><input type="checkbox" id="swAuto" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>数据管理</h3>
+        <button class="btn" id="btnExport" style="background:#6b7d6f">导出学习进度</button>
+        <button class="btn danger" id="btnReset">清空学习记录（保留自定义词）</button>
+        <button class="btn danger" id="btnResetAll">恢复出厂设置（清空全部）</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="practice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="20" height="13" rx="2.5"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h6"/>
+      </svg>练习
+    </button>
+    <button class="tab" data-page="library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+      </svg>词库
+    </button>
+    <button class="tab" data-page="progress">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+      </svg>进度
+    </button>
+    <button class="tab" data-page="uni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+      </svg>大学
+    </button>
+    <button class="tab" data-page="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+      </svg>设置
+    </button>
+  </nav>
+</div>
+
+<div id="milestone">
+  <div class="ms-box">
+    <div class="ms-icon" id="msIcon">🎉</div>
+    <div class="ms-title" id="msTitle"></div>
+    <div class="ms-msg" id="msMsg"></div>
+    <button class="ms-btn" id="msBtn">继续加油</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   1. 罗马字 → 平假名
+   ========================================================= */
+const RM={
+  a:'あ',i:'い',u:'う',e:'え',o:'お',
+  ka:'か',ki:'き',ku:'く',ke:'け',ko:'こ',kya:'きゃ',kyu:'きゅ',kyo:'きょ',
+  sa:'さ',si:'し',shi:'し',su:'す',se:'せ',so:'そ',
+  sya:'しゃ',syu:'しゅ',syo:'しょ',sha:'しゃ',shu:'しゅ',sho:'しょ',
+  ta:'た',ti:'ち',chi:'ち',tu:'つ',tsu:'つ',te:'て',to:'と',
+  tya:'ちゃ',tyu:'ちゅ',tyo:'ちょ',cha:'ちゃ',chu:'ちゅ',cho:'ちょ',
+  na:'な',ni:'に',nu:'ぬ',ne:'ね',no:'の',nya:'にゃ',nyu:'にゅ',nyo:'にょ',
+  ha:'は',hi:'ひ',hu:'ふ',fu:'ふ',he:'へ',ho:'ほ',hya:'ひゃ',hyu:'ひゅ',hyo:'ひょ',
+  ma:'ま',mi:'み',mu:'む',me:'め',mo:'も',mya:'みゃ',myu:'みゅ',myo:'みょ',
+  ya:'や',yu:'ゆ',yo:'よ',
+  ra:'ら',ri:'り',ru:'る',re:'れ',ro:'ろ',rya:'りゃ',ryu:'りゅ',ryo:'りょ',
+  wa:'わ',wo:'を',
+  ga:'が',gi:'ぎ',gu:'ぐ',ge:'げ',go:'ご',gya:'ぎゃ',gyu:'ぎゅ',gyo:'ぎょ',
+  za:'ざ',zi:'じ',ji:'じ',zu:'ず',ze:'ぜ',zo:'ぞ',
+  zya:'じゃ',zyu:'じゅ',zyo:'じょ',ja:'じゃ',ju:'じゅ',jo:'じょ',
+  da:'だ',di:'ぢ',du:'づ',de:'で',do:'ど',
+  ba:'ば',bi:'び',bu:'ぶ',be:'べ',bo:'ぼ',bya:'びゃ',byu:'びゅ',byo:'びょ',
+  pa:'ぱ',pi:'ぴ',pu:'ぷ',pe:'ぺ',po:'ぽ',pya:'ぴゃ',pyu:'ぴゅ',pyo:'ぴょ',
+  '-':'ー','ー':'ー'
+};
+const CS='kstcphmyrgbzdfjvw';
+function romajiToHiragana(src){
+  const s=src.toLowerCase().replace(/[^a-z\-]/g,'');
+  let i=0,out='';
+  while(i<s.length){
+    if(s.substr(i,3)==='tch'){out+='っ';i+=1;continue;}
+    if(i+1<s.length&&s[i]===s[i+1]&&CS.includes(s[i])){out+='っ';i+=1;continue;}
+    if(s[i]==='n'){
+      const nx=s[i+1];
+      if(nx===undefined||!'aiueoy'.includes(nx)){out+='ん';i+=1;continue;}
+    }
+    let hit=false;
+    for(let len=3;len>=1;len--){
+      const ch=s.substr(i,len);
+      if(RM[ch]){out+=RM[ch];i+=len;hit=true;break;}
+    }
+    if(!hit)i+=1;
+  }
+  return out;
+}
+function normalizeKana(str){
+  let out='';
+  for(const ch of str){
+    const c=ch.charCodeAt(0);
+    if(c>=0x30A1&&c<=0x30F6)out+=String.fromCharCode(c-0x60);
+    else if(ch!==' '&&ch!=='　')out+=ch;
+  }
+  return out;
+}
+function userInputToKana(raw){
+  const f=raw.replace(/[\uFF21-\uFF3A\uFF41-\uFF5A]/g,
+    c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  if(/[\u3040-\u30ff]/.test(f))return normalizeKana(f);
+  return romajiToHiragana(f);
+}
+
+/* =========================================================
+   2. 内置词库（约 1350 词）
+   格式：汉字|假名|中文
+   ========================================================= */
+const RAW={
+N5:`
+私|わたし|我
+あなた|あなた|你
+彼|かれ|他
+彼女|かのじょ|她
+人|ひと|人
+友達|ともだち|朋友
+家族|かぞく|家人
+父|ちち|父亲
+母|はは|母亲
+兄|あに|哥哥
+姉|あね|姐姐
+弟|おとうと|弟弟
+妹|いもうと|妹妹
+祖父|そふ|祖父
+祖母|そぼ|祖母
+お父さん|おとうさん|爸爸
+お母さん|おかあさん|妈妈
+子供|こども|孩子
+赤ちゃん|あかちゃん|婴儿
+男|おとこ|男人
+女|おんな|女人
+男性|だんせい|男性
+女性|じょせい|女性
+先生|せんせい|老师
+学生|がくせい|学生
+生徒|せいと|学生
+学校|がっこう|学校
+教室|きょうしつ|教室
+大学|だいがく|大学
+図書館|としょかん|图书馆
+本|ほん|书
+ノート|のーと|笔记本
+ペン|ぺん|笔
+鉛筆|えんぴつ|铅笔
+消しゴム|けしごむ|橡皮
+机|つくえ|桌子
+椅子|いす|椅子
+窓|まど|窗户
+ドア|どあ|门
+鍵|かぎ|钥匙
+鞄|かばん|包
+家|いえ|家
+部屋|へや|房间
+台所|だいどころ|厨房
+風呂|ふろ|浴室
+トイレ|といれ|厕所
+庭|にわ|庭院
+玄関|げんかん|玄关
+壁|かべ|墙壁
+床|ゆか|地板
+屋根|やね|屋顶
+階段|かいだん|楼梯
+水|みず|水
+お茶|おちゃ|茶
+コーヒー|こーひー|咖啡
+牛乳|ぎゅうにゅう|牛奶
+ジュース|じゅーす|果汁
+お酒|おさけ|酒
+ビール|びーる|啤酒
+ご飯|ごはん|米饭
+パン|ぱん|面包
+肉|にく|肉
+牛肉|ぎゅうにく|牛肉
+豚肉|ぶたにく|猪肉
+鶏肉|とりにく|鸡肉
+魚|さかな|鱼
+野菜|やさい|蔬菜
+果物|くだもの|水果
+りんご|りんご|苹果
+みかん|みかん|橘子
+バナナ|ばなな|香蕉
+卵|たまご|鸡蛋
+塩|しお|盐
+砂糖|さとう|糖
+醤油|しょうゆ|酱油
+油|あぶら|油
+バター|ばたー|黄油
+チーズ|ちーず|奶酪
+朝|あさ|早晨
+昼|ひる|中午
+夜|よる|夜晚
+今朝|けさ|今天早上
+今晩|こんばん|今天晚上
+今日|きょう|今天
+明日|あした|明天
+昨日|きのう|昨天
+毎日|まいにち|每天
+毎朝|まいあさ|每天早上
+毎晩|まいばん|每天晚上
+今|いま|现在
+時間|じかん|时间
+時|とき|时候
+分|ふん|分钟
+秒|びょう|秒
+年|とし|年
+月|つき|月
+日|ひ|日
+週|しゅう|周
+午前|ごぜん|上午
+午後|ごご|下午
+朝ご飯|あさごはん|早饭
+昼ご飯|ひるごはん|午饭
+晩ご飯|ばんごはん|晚饭
+天気|てんき|天气
+雨|あめ|雨
+雪|ゆき|雪
+風|かぜ|风
+雲|くも|云
+空|そら|天空
+太陽|たいよう|太阳
+月|つき|月亮
+星|ほし|星星
+海|うみ|海
+山|やま|山
+川|かわ|河
+湖|みずうみ|湖
+森|もり|森林
+花|はな|花
+木|き|树
+草|くさ|草
+石|いし|石头
+砂|すな|沙子
+土|つち|土
+火|ひ|火
+猫|ねこ|猫
+犬|いぬ|狗
+鳥|とり|鸟
+虫|むし|虫子
+馬|うま|马
+牛|うし|牛
+豚|ぶた|猪
+羊|ひつじ|羊
+魚|さかな|鱼
+色|いろ|颜色
+赤|あか|红色
+青|あお|蓝色
+白|しろ|白色
+黒|くろ|黑色
+黄色|きいろ|黄色
+緑|みどり|绿色
+茶色|ちゃいろ|棕色
+紫|むらさき|紫色
+上|うえ|上面
+下|した|下面
+前|まえ|前面
+後ろ|うしろ|后面
+右|みぎ|右边
+左|ひだり|左边
+中|なか|里面
+外|そと|外面
+横|よこ|旁边
+近く|ちかく|附近
+隣|となり|隔壁
+間|あいだ|之间
+食べる|たべる|吃
+飲む|のむ|喝
+見る|みる|看
+聞く|きく|听；问
+話す|はなす|说
+読む|よむ|读
+書く|かく|写
+行く|いく|去
+来る|くる|来
+帰る|かえる|回去
+買う|かう|买
+売る|うる|卖
+待つ|まつ|等
+会う|あう|见面
+起きる|おきる|起床
+寝る|ねる|睡觉
+働く|はたらく|工作
+休む|やすむ|休息
+勉強する|べんきょうする|学习
+遊ぶ|あそぶ|玩
+走る|はしる|跑
+歩く|あるく|走路
+座る|すわる|坐
+立つ|たつ|站
+開ける|あける|打开
+閉める|しめる|关闭
+使う|つかう|使用
+作る|つくる|制作
+持つ|もつ|拿
+取る|とる|取
+洗う|あらう|洗
+切る|きる|切
+入る|はいる|进入
+出る|でる|出去
+始まる|はじまる|开始
+終わる|おわる|结束
+死ぬ|しぬ|死
+生きる|いきる|活
+笑う|わらう|笑
+泣く|なく|哭
+歌う|うたう|唱歌
+踊る|おどる|跳舞
+泳ぐ|およぐ|游泳
+飛ぶ|とぶ|飞
+登る|のぼる|爬
+降りる|おりる|下（车）
+乗る|のる|乘坐
+着る|きる|穿
+脱ぐ|ぬぐ|脱
+好き|すき|喜欢
+嫌い|きらい|讨厌
+欲しい|ほしい|想要
+大きい|おおきい|大的
+小さい|ちいさい|小的
+高い|たかい|高的；贵的
+安い|やすい|便宜的
+新しい|あたらしい|新的
+古い|ふるい|旧的
+多い|おおい|多的
+少ない|すくない|少的
+遠い|とおい|远的
+近い|ちかい|近的
+長い|ながい|长的
+短い|みじかい|短的
+早い|はやい|早的
+遅い|おそい|晚的；慢的
+暑い|あつい|热的
+寒い|さむい|冷的
+暖かい|あたたかい|温暖的
+涼しい|すずしい|凉爽的
+おいしい|おいしい|好吃的
+楽しい|たのしい|快乐的
+難しい|むずかしい|难的
+易しい|やさしい|容易的
+忙しい|いそがしい|忙的
+面白い|おもしろい|有趣的
+つまらない|つまらない|无聊的
+きれい|きれい|漂亮；干净
+元気|げんき|精神好
+静か|しずか|安静
+賑やか|にぎやか|热闹
+有名|ゆうめい|有名
+大切|たいせつ|重要
+大丈夫|だいじょうぶ|没问题
+とても|とても|非常
+少し|すこし|一点
+たくさん|たくさん|很多
+全部|ぜんぶ|全部
+みんな|みんな|大家
+いつも|いつも|总是
+よく|よく|经常
+たまに|たまに|偶尔
+今度|こんど|下次
+また|また|再
+もう|もう|已经
+一|いち|一
+二|に|二
+三|さん|三
+四|し|四
+五|ご|五
+六|ろく|六
+七|しち|七
+八|はち|八
+九|きゅう|九
+十|じゅう|十
+百|ひゃく|百
+千|せん|千
+万|まん|万
+月曜日|げつようび|星期一
+火曜日|かようび|星期二
+水曜日|すいようび|星期三
+木曜日|もくようび|星期四
+金曜日|きんようび|星期五
+土曜日|どようび|星期六
+日曜日|にちようび|星期日
+何曜日|なんようび|星期几
+一月|いちがつ|一月
+二月|にがつ|二月
+三月|さんがつ|三月
+四月|しがつ|四月
+五月|ごがつ|五月
+六月|ろくがつ|六月
+七月|しちがつ|七月
+八月|はちがつ|八月
+九月|くがつ|九月
+十月|じゅうがつ|十月
+十一月|じゅういちがつ|十一月
+十二月|じゅうにがつ|十二月
+バス|ばす|公交车
+タクシー|たくしー|出租车
+飛行機|ひこうき|飞机
+船|ふね|船
+車|くるま|汽车
+バイク|ばいく|摩托车
+エレベーター|えれべーたー|电梯
+エスカレーター|えすかれーたー|扶梯
+シャツ|しゃつ|衬衫
+ズボン|ずぼん|裤子
+スカート|すかーと|裙子
+コート|こーと|外套
+セーター|せーたー|毛衣
+靴下|くつした|袜子
+手袋|てぶくろ|手套
+マフラー|まふらー|围巾
+着物|きもの|和服
+水着|みずぎ|泳装
+パジャマ|ぱじゃま|睡衣
+ネクタイ|ねくたい|领带
+ベルト|べると|皮带
+サングラス|さんぐらす|太阳镜
+指輪|ゆびわ|戒指
+定規|じょうぎ|尺子
+はさみ|はさみ|剪刀
+のり|のり|胶水
+テープ|てーぷ|胶带
+封筒|ふうとう|信封
+はがき|はがき|明信片
+切手|きって|邮票
+ボールペン|ぼーるぺん|圆珠笔
+マーカー|まーかー|记号笔
+ホッチキス|ほっちきす|订书机
+クリップ|くりっぷ|回形针
+一つ|ひとつ|一个
+二つ|ふたつ|两个
+三つ|みっつ|三个
+四つ|よっつ|四个
+五つ|いつつ|五个
+六つ|むっつ|六个
+七つ|ななつ|七个
+八つ|やっつ|八个
+九つ|ここのつ|九个
+十|とお|十个
+一人|ひとり|一个人
+二人|ふたり|两个人
+一枚|いちまい|一张
+一本|いっぽん|一根
+一杯|いっぱい|一杯
+一冊|いっさつ|一册
+一台|いちだい|一台
+一回|いっかい|一次
+一度|いちど|一次
+おはようございます|おはようございます|早上好
+こんにちは|こんにちは|你好
+こんばんは|こんばんは|晚上好
+おやすみなさい|おやすみなさい|晚安
+さようなら|さようなら|再见
+じゃあね|じゃあね|回头见
+ありがとう|ありがとう|谢谢
+ありがとうございます|ありがとうございます|谢谢（敬语）
+どういたしまして|どういたしまして|不用谢
+すみません|すみません|对不起；打扰了
+ごめんなさい|ごめんなさい|对不起
+はい|はい|是
+いいえ|いいえ|不
+お願いします|おねがいします|拜托了
+いただきます|いただきます|我开动了
+ごちそうさま|ごちそうさま|我吃饱了
+いってきます|いってきます|我出门了
+いってらっしゃい|いってらっしゃい|路上小心
+ただいま|ただいま|我回来了
+おかえりなさい|おかえりなさい|欢迎回来
+お疲れ様|おつかれさま|辛苦了
+はじめまして|はじめまして|初次见面
+よろしくお願いします|よろしくおねがいします|请多关照
+お久しぶりです|おひさしぶりです|好久不见
+お元気ですか|おげんきですか|你好吗
+ある|ある|有（物）
+いる|いる|有（人）
+できる|できる|能；会
+わかる|わかる|明白
+知る|しる|知道
+要る|いる|需要
+見える|みえる|看得见
+聞こえる|きこえる|听得见
+止める|とめる|停下
+疲れる|つかれる|疲劳
+怒る|おこる|生气
+喜ぶ|よろこぶ|高兴
+驚く|おどろく|吃惊
+困る|こまる|为难
+迷う|まよう|迷路；犹豫
+教える|おしえる|教
+習う|ならう|学习
+思い出す|おもいだす|想起
+答える|こたえる|回答
+質問する|しつもんする|提问
+まだ|まだ|还
+すぐ|すぐ|马上
+ゆっくり|ゆっくり|慢慢地
+一緒に|いっしょに|一起
+`, 
+N4:`
+予定|よてい|预定；计划
+予約|よやく|预约
+準備|じゅんび|准备
+説明|せつめい|说明
+相談|そうだん|商量
+連絡|れんらく|联系
+約束|やくそく|约定
+経験|けいけん|经验
+興味|きょうみ|兴趣
+関係|かんけい|关系
+意味|いみ|意思
+言葉|ことば|语言；词语
+文化|ぶんか|文化
+習慣|しゅうかん|习惯
+歴史|れきし|历史
+社会|しゃかい|社会
+世界|せかい|世界
+経済|けいざい|经济
+政治|せいじ|政治
+科学|かがく|科学
+技術|ぎじゅつ|技术
+情報|じょうほう|信息
+意見|いけん|意见
+理由|りゆう|理由
+方法|ほうほう|方法
+結果|けっか|结果
+問題|もんだい|问题
+答え|こたえ|答案
+試験|しけん|考试
+宿題|しゅくだい|作业
+授業|じゅぎょう|课
+講義|こうぎ|讲义；课程
+駅|えき|车站
+空港|くうこう|机场
+病院|びょういん|医院
+銀行|ぎんこう|银行
+郵便局|ゆうびんきょく|邮局
+会社|かいしゃ|公司
+工場|こうじょう|工厂
+店|みせ|商店
+食堂|しょくどう|食堂
+レストラン|れすとらん|餐厅
+旅行|りょこう|旅行
+出張|しゅっちょう|出差
+観光|かんこう|观光
+映画|えいが|电影
+音楽|おんがく|音乐
+運動|うんどう|运动
+試合|しあい|比赛
+会議|かいぎ|会议
+電話|でんわ|电话
+手紙|てがみ|信
+荷物|にもつ|行李
+財布|さいふ|钱包
+服|ふく|衣服
+靴|くつ|鞋
+帽子|ぼうし|帽子
+眼鏡|めがね|眼镜
+時計|とけい|钟表
+傘|かさ|伞
+写真|しゃしん|照片
+地図|ちず|地图
+切符|きっぷ|车票
+心配|しんぱい|担心
+安心|あんしん|安心
+失敗|しっぱい|失败
+成功|せいこう|成功
+努力|どりょく|努力
+我慢|がまん|忍耐
+遠慮|えんりょ|客气
+挨拶|あいさつ|打招呼
+お祝い|おいわい|祝贺
+お礼|おれい|感谢
+お詫び|おわび|道歉
+選ぶ|えらぶ|选择
+決める|きめる|决定
+変える|かえる|改变
+始める|はじめる|开始
+続ける|つづける|继续
+忘れる|わすれる|忘记
+覚える|おぼえる|记住
+考える|かんがえる|思考
+思う|おもう|认为
+感じる|かんじる|感觉
+信じる|しんじる|相信
+比べる|くらべる|比较
+調べる|しらべる|调查
+集める|あつめる|收集
+捨てる|すてる|扔掉
+届ける|とどける|送达
+送る|おくる|寄送
+受け取る|うけとる|收到
+貸す|かす|借出
+借りる|かりる|借入
+返す|かえす|归还
+払う|はらう|支付
+貯める|ためる|储蓄
+慣れる|なれる|习惯
+頑張る|がんばる|努力
+手伝う|てつだう|帮忙
+見つける|みつける|找到
+探す|さがす|寻找
+閉じる|とじる|关闭
+開く|ひらく|打开；举办
+動く|うごく|动
+止まる|とまる|停止
+曲がる|まがる|转弯
+渡る|わたる|过（马路）
+通る|とおる|通过
+急ぐ|いそぐ|着急
+戻る|もどる|返回
+出かける|でかける|出门
+迎える|むかえる|迎接
+招待する|しょうたいする|招待
+案内する|あんないする|引导
+紹介する|しょうかいする|介绍
+注意する|ちゅういする|注意
+利用する|りようする|利用
+生活する|せいかつする|生活
+研究する|けんきゅうする|研究
+練習する|れんしゅうする|练习
+予習する|よしゅうする|预习
+復習する|ふくしゅうする|复习
+出席する|しゅっせきする|出席
+欠席する|けっせきする|缺席
+参加する|さんかする|参加
+応募する|おうぼする|应募
+申し込む|もうしこむ|申请
+断る|ことわる|拒绝
+謝る|あやまる|道歉
+褒める|ほめる|表扬
+叱る|しかる|责备
+頼む|たのむ|请求
+許す|ゆるす|原谅
+決まる|きまる|定下来
+変わる|かわる|变化
+増える|ふえる|增加
+減る|へる|减少
+生まれる|うまれる|出生
+育つ|そだつ|成长
+住む|すむ|居住
+通う|かよう|通勤；上学
+勤める|つとめる|工作
+辞める|やめる|辞职
+受ける|うける|接受
+渡す|わたす|交给
+届く|とどく|送达
+並ぶ|ならぶ|排队
+並べる|ならべる|排列
+拾う|ひろう|捡
+落とす|おとす|掉落
+割れる|われる|破裂
+壊れる|こわれる|坏掉
+直す|なおす|修理
+治る|なおる|痊愈
+残る|のこる|剩下
+指定|してい|指定
+実際|じっさい|实际
+実は|じつは|其实
+直接|ちょくせつ|直接
+間接|かんせつ|间接
+急に|きゅうに|突然
+突然|とつぜん|突然
+偶然|ぐうぜん|偶然
+必ず|かならず|必定
+絶対|ぜったい|绝对
+きっと|きっと|一定
+たぶん|たぶん|大概
+もしかしたら|もしかしたら|说不定
+やはり|やはり|果然
+やっぱり|やっぱり|果然
+例えば|たとえば|例如
+特に|とくに|特别
+別に|べつに|并不
+全然|ぜんぜん|完全（不）
+あまり|あまり|不太
+ほとんど|ほとんど|几乎
+なかなか|なかなか|相当；怎么也
+だんだん|だんだん|渐渐
+そろそろ|そろそろ|差不多该
+ちょうど|ちょうど|正好
+やっと|やっと|终于
+とうとう|とうとう|终于
+ついに|ついに|终于
+先に|さきに|先
+後で|あとで|之后
+すぐに|すぐに|马上
+もうすぐ|もうすぐ|马上
+いつか|いつか|总有一天
+どこか|どこか|某处
+誰か|だれか|某人
+何か|なにか|某物
+何も|なにも|什么也
+集まる|あつまる|聚集
+変わる|かわる|变化
+増える|ふえる|增加
+減る|へる|减少
+生まれる|うまれる|出生
+育つ|そだつ|成长
+住む|すむ|居住
+通う|かよう|通学
+勤める|つとめる|工作
+辞める|やめる|辞职
+受ける|うける|接受
+渡す|わたす|交给
+届く|とどく|送达
+並ぶ|ならぶ|排队
+並べる|ならべる|排列
+拾う|ひろう|捡
+落とす|おとす|掉落
+割れる|われる|破裂
+壊れる|こわれる|坏掉
+直す|なおす|修理
+治る|なおる|痊愈
+残る|のこる|剩下
+残す|のこす|留下
+払い戻す|はらいもどす|退款
+沸く|わく|沸腾
+冷える|ひえる|变冷
+冷やす|ひやす|冷却
+温める|あたためる|加热
+焼く|やく|烤
+煮る|にる|煮
+炒める|いためる|炒
+混ぜる|まぜる|混合
+味付けする|あじつけする|调味
+包む|つつむ|包
+締める|しめる|关紧
+付ける|つける|安装；附上
+外す|はずす|取下
+つなぐ|つなぐ|连接
+切れる|きれる|断掉
+続く|つづく|继续
+現れる|あらわれる|出现
+消える|きえる|消失
+光る|ひかる|发光
+輝く|かがやく|闪耀
+鳴る|なる|响
+静まる|しずまる|安静下来
+動かす|うごかす|移动
+揺れる|ゆれる|摇晃
+回る|まわる|旋转
+曲げる|まげる|弯曲
+伸ばす|のばす|伸展
+縮む|ちぢむ|缩小
+広がる|ひろがる|扩展
+深まる|ふかまる|加深
+高まる|たかまる|提高
+下がる|さがる|下降
+上げる|あげる|举起
+下げる|さげる|降低
+残す|のこす|留下
+払い戻す|はらいもどす|退款
+`, 
+N3:`
+影響|えいきょう|影响
+状況|じょうきょう|状况
+環境|かんきょう|环境
+自然|しぜん|自然
+資源|しげん|资源
+人口|じんこう|人口
+地域|ちいき|地区
+地方|ちほう|地方
+都市|とし|都市
+交通|こうつう|交通
+輸送|ゆそう|运输
+貿易|ぼうえき|贸易
+産業|さんぎょう|产业
+農業|のうぎょう|农业
+工業|こうぎょう|工业
+企業|きぎょう|企业
+商品|しょうひん|商品
+販売|はんばい|销售
+価格|かかく|价格
+料金|りょうきん|费用
+税金|ぜいきん|税金
+給料|きゅうりょう|工资
+貯金|ちょきん|存款
+費用|ひよう|费用
+内容|ないよう|内容
+目的|もくてき|目的
+対象|たいしょう|对象
+条件|じょうけん|条件
+場合|ばあい|场合
+原因|げんいん|原因
+以上|いじょう|以上
+以下|いか|以下
+以前|いぜん|以前
+以後|いご|以后
+現在|げんざい|现在
+将来|しょうらい|将来
+過去|かこ|过去
+未来|みらい|未来
+期間|きかん|期间
+途中|とちゅう|途中
+最近|さいきん|最近
+最初|さいしょ|最初
+最後|さいご|最后
+必要|ひつよう|必要
+重要|じゅうよう|重要
+複雑|ふくざつ|复杂
+簡単|かんたん|简单
+便利|べんり|方便
+不便|ふべん|不方便
+安全|あんぜん|安全
+危険|きけん|危险
+正確|せいかく|正确
+普通|ふつう|普通
+特別|とくべつ|特别
+効果|こうか|效果
+能力|のうりょく|能力
+知識|ちしき|知识
+専門|せんもん|专业
+研究|けんきゅう|研究
+調査|ちょうさ|调查
+分析|ぶんせき|分析
+発表|はっぴょう|发表
+報告|ほうこく|报告
+記録|きろく|记录
+資料|しりょう|资料
+表現|ひょうげん|表达
+翻訳|ほんやく|翻译
+通訳|つうやく|口译
+会話|かいわ|会话
+発音|はつおん|发音
+文法|ぶんぽう|语法
+単語|たんご|单词
+文章|ぶんしょう|文章
+作文|さくぶん|作文
+小説|しょうせつ|小说
+新聞|しんぶん|报纸
+雑誌|ざっし|杂志
+広告|こうこく|广告
+放送|ほうそう|广播
+番組|ばんぐみ|节目
+舞台|ぶたい|舞台
+展示|てんじ|展示
+芸術|げいじゅつ|艺术
+伝統|でんとう|传统
+宗教|しゅうきょう|宗教
+制度|せいど|制度
+規則|きそく|规则
+法律|ほうりつ|法律
+権利|けんり|权利
+義務|ぎむ|义务
+責任|せきにん|责任
+自由|じゆう|自由
+平等|びょうどう|平等
+平和|へいわ|和平
+戦争|せんそう|战争
+政府|せいふ|政府
+国民|こくみん|国民
+国際|こくさい|国际
+外国|がいこく|外国
+外国人|がいこくじん|外国人
+留学|りゅうがく|留学
+留学生|りゅうがくせい|留学生
+入学|にゅうがく|入学
+卒業|そつぎょう|毕业
+進学|しんがく|升学
+就職|しゅうしょく|就业
+面接|めんせつ|面试
+履歴書|りれきしょ|简历
+アルバイト|あるばいと|打工
+希望|きぼう|希望
+目標|もくひょう|目标
+計画|けいかく|计划
+実現|じつげん|实现
+判断|はんだん|判断
+選択|せんたく|选择
+決定|けってい|决定
+変更|へんこう|変更
+確認|かくにん|确认
+提案|ていあん|提案
+改善|かいぜん|改善
+解決|かいけつ|解决
+対応|たいおう|应对
+処理|しょり|处理
+管理|かんり|管理
+経営|けいえい|经营
+組織|そしき|组织
+集団|しゅうだん|集体
+個人|こじん|个人
+公共|こうきょう|公共
+活動|かつどう|活动
+行事|ぎょうじ|活动；仪式
+初心者|しょしんしゃ|初学者
+上級者|じょうきゅうしゃ|高级者
+参加者|さんかしゃ|参加者
+責任者|せきにんしゃ|负责人
+担当者|たんとうしゃ|负责人
+利用者|りようしゃ|使用者
+消費者|しょうひしゃ|消费者
+生産者|せいさんしゃ|生产者
+指導|しどう|指导
+教育|きょういく|教育
+訓練|くんれん|训练
+研修|けんしゅう|进修
+講演|こうえん|演讲
+討論|とうろん|讨论
+会談|かいだん|会谈
+交渉|こうしょう|交涉
+協力|きょうりょく|合作
+共同|きょうどう|共同
+連携|れんけい|协作
+融資|ゆうし|融资
+予算|よさん|预算
+決算|けっさん|结算
+収入|しゅうにゅう|收入
+支出|ししゅつ|支出
+利益|りえき|利益
+損失|そんしつ|损失
+資産|しさん|资产
+無意識|むいしき|无意识
+自覚|じかく|自觉
+関心|かんしん|关心
+興味深い|きょうみぶかい|有趣的
+積極性|せっきょくせい|积极性
+自主性|じしゅせい|自主性
+主体性|しゅたいせい|主体性
+協調性|きょうちょうせい|协调性
+柔軟性|じゅうなんせい|灵活性
+独創性|どくそうせい|独创性
+創造力|そうぞうりょく|创造力
+想像力|そうぞうりょく|想象力
+表現力|ひょうげんりょく|表现力
+集中力|しゅうちゅうりょく|专注力
+記憶力|きおくりょく|记忆力
+理解力|りかいりょく|理解力
+判断力|はんだんりょく|判断力
+行動力|こうどうりょく|行动力
+実行力|じっこうりょく|执行力
+説得力|せっとくりょく|说服力
+影響力|えいきょうりょく|影响力
+競争力|きょうそうりょく|竞争力
+生産性|せいさんせい|生产率
+効率性|こうりつせい|效率性
+安全性|あんぜんせい|安全性
+信頼性|しんらいせい|可靠性
+正確性|せいかくせい|准确性
+迅速性|じんそくせい|迅速性
+継続性|けいぞくせい|持续性
+安定性|あんていせい|稳定性
+透明性|とうめいせい|透明度
+公平性|こうへいせい|公平性
+多様性|たようせい|多样性
+国際性|こくさいせい|国际性
+地域性|ちいきせい|地域性
+専門性|せんもんせい|专业性
+独自性|どくじせい|独特性
+達する|たっする|达到
+及ぶ|およぶ|涉及
+至る|いたる|到达
+伴う|ともなう|伴随
+基づく|もとづく|基于
+応じる|おうじる|应对
+関わる|かかわる|涉及
+繋がる|つながる|关联
+含む|ふくむ|包含
+含める|ふくめる|包括
+除く|のぞく|除去
+加える|くわえる|添加
+減らす|へらす|减少
+増やす|ふやす|增加
+改める|あらためる|改正
+整える|ととのえる|整理
+崩す|くずす|弄乱
+壊す|こわす|破坏
+治す|なおす|治（病）
+守る|まもる|遵守；保护
+破る|やぶる|违反
+従う|したがう|遵从
+逆らう|さからう|违背
+任せる|まかせる|委托
+担当する|たんとうする|负责
+指揮する|しきする|指挥
+教育する|きょういくする|教育
+訓練する|くんれんする|训练
+養成する|ようせいする|培养
+育成する|いくせいする|育成
+支援する|しえんする|支援
+援助する|えんじょする|援助
+保護する|ほごする|保护
+救う|すくう|拯救
+助ける|たすける|帮助
+支える|ささえる|支撑
+支払う|しはらう|支付
+負担する|ふたんする|负担
+兼任する|けんにんする|兼任
+専念する|せんねんする|专注
+集中する|しゅうちゅうする|集中
+分散する|ぶんさんする|分散
+広める|ひろめる|推广
+伝える|つたえる|传达
+伝わる|つたわる|传开
+知らせる|しらせる|通知
+報告する|ほうこくする|报告
+公表する|こうひょうする|公布
+公開する|こうかいする|公开
+隠す|かくす|隐藏
+隠れる|かくれる|躲藏
+示す|しめす|显示
+表す|あらわす|表现
+反映する|はんえいする|反映
+映る|うつる|映照
+写る|うつる|拍摄
+映す|うつす|映出
+負債|ふさい|负债
+`, 
+N2:`
+課題|かだい|课题
+矛盾|むじゅん|矛盾
+傾向|けいこう|倾向
+要因|よういん|要因
+要素|ようそ|要素
+特徴|とくちょう|特征
+性質|せいしつ|性质
+状態|じょうたい|状态
+現象|げんしょう|现象
+事実|じじつ|事实
+達成|たっせい|达成
+維持|いじ|维持
+対策|たいさく|对策
+手段|しゅだん|手段
+手法|しゅほう|手法
+基準|きじゅん|基准
+標準|ひょうじゅん|标准
+範囲|はんい|范围
+限界|げんかい|界限
+程度|ていど|程度
+割合|わりあい|比例
+平均|へいきん|平均
+最大|さいだい|最大
+最小|さいしょう|最小
+増加|ぞうか|增加
+減少|げんしょう|减少
+変化|へんか|变化
+発展|はってん|发展
+成長|せいちょう|成长
+拡大|かくだい|扩大
+縮小|しゅくしょう|缩小
+上昇|じょうしょう|上升
+下降|かこう|下降
+回復|かいふく|恢复
+可能性|かのうせい|可能性
+必要性|ひつようせい|必要性
+重要性|じゅうようせい|重要性
+責任感|せきにんかん|责任感
+価値観|かちかん|价值观
+世界観|せかいかん|世界观
+人生観|じんせいかん|人生观
+常識|じょうしき|常识
+意識|いしき|意识
+記憶|きおく|记忆
+評価|ひょうか|评价
+批判|ひはん|批判
+賛成|さんせい|赞成
+反対|はんたい|反对
+主張|しゅちょう|主张
+議論|ぎろん|讨论
+説得|せっとく|说服
+団体|だんたい|团体
+民間|みんかん|民间
+行政|ぎょうせい|行政
+議会|ぎかい|议会
+選挙|せんきょ|选举
+投票|とうひょう|投票
+適切|てきせつ|恰当
+適当|てきとう|适当；随便
+明確|めいかく|明确
+曖昧|あいまい|暧昧
+微妙|びみょう|微妙
+深刻|しんこく|严重
+重大|じゅうだい|重大
+貴重|きちょう|贵重
+有効|ゆうこう|有效
+無効|むこう|无效
+十分|じゅうぶん|充分
+不足|ふそく|不足
+余裕|よゆう|余地
+制限|せいげん|限制
+禁止|きんし|禁止
+許可|きょか|许可
+承認|しょうにん|批准
+証明|しょうめい|证明
+保証|ほしょう|保证
+契約|けいやく|合同
+取引|とりひき|交易
+投資|とうし|投资
+負担|ふたん|负担
+資金|しきん|资金
+営業|えいぎょう|营业
+売上|うりあげ|销售额
+需要|じゅよう|需求
+供給|きょうきゅう|供给
+競争|きょうそう|竞争
+提携|ていけい|合作
+合併|がっぺい|合并
+倒産|とうさん|破产
+景気|けいき|经济景气
+物価|ぶっか|物价
+為替|かわせ|汇率
+輸出|ゆしゅつ|出口
+輸入|ゆにゅう|进口
+関税|かんぜい|关税
+規制|きせい|管制
+緩和|かんわ|缓和
+強化|きょうか|强化
+徹底|てってい|彻底
+追求|ついきゅう|追求
+遂行|すいこう|执行
+実施|じっし|实施
+導入|どうにゅう|导入
+促進|そくしん|促进
+抑制|よくせい|抑制
+防止|ぼうし|防止
+削減|さくげん|削减
+確保|かくほ|确保
+把握|はあく|把握
+認識|にんしき|认识
+理解|りかい|理解
+納得|なっとく|信服
+同意|どうい|同意
+反論|はんろん|反驳
+根拠|こんきょ|根据
+結論|けつろん|结论
+仮定|かてい|假定
+推測|すいそく|推测
+予測|よそく|预测
+検討|けんとう|探讨
+協議|きょうぎ|协商
+調整|ちょうせい|调整
+統合|とうごう|统合
+分割|ぶんかつ|分割
+配分|はいぶん|分配
+効率|こうりつ|效率
+生産|せいさん|生产
+消費|しょうひ|消费
+流通|りゅうつう|流通
+在庫|ざいこ|库存
+納品|のうひん|交货
+発注|はっちゅう|订货
+請求|せいきゅう|请求；账单
+支払|しはらい|支付
+決済|けっさい|结算
+融資|ゆうし|融资
+返済|へんさい|还款
+担保|たんぽ|担保
+信頼|しんらい|信赖
+信用|しんよう|信用
+評判|ひょうばん|评价
+人気|にんき|人气
+魅了|みりょう|魅力
+印象|いんしょう|印象
+感想|かんそう|感想
+共感|きょうかん|共鸣
+感動|かんどう|感动
+感謝|かんしゃ|感谢
+適性|てきせい|适应性
+素質|そしつ|素质
+才能|さいのう|才能
+人材|じんざい|人才
+人材育成|じんざいいくせい|人才培养
+教育制度|きょういくせいど|教育制度
+教育現場|きょういくげんば|教育一线
+学習意欲|がくしゅういよく|学习意愿
+学習効果|がくしゅうこうか|学习效果
+教育課程|きょういくかてい|课程
+授業内容|じゅぎょうないよう|授课内容
+評価制度|ひょうかせいど|评价制度
+試験制度|しけんせいど|考试制度
+入学試験|にゅうがくしけん|入学考试
+卒業論文|そつぎょうろんぶん|毕业论文
+研究テーマ|けんきゅうてーま|研究主题
+研究方法|けんきゅうほうほう|研究方法
+研究成果|けんきゅうせいか|研究成果
+学術|がくじゅつ|学术
+学問|がくもん|学问
+分野|ぶんや|领域
+領域|りょういき|领域
+専門分野|せんもんぶんや|专业领域
+境界|きょうかい|边界
+枠組み|わくぐみ|框架
+体系|たいけい|体系
+理論|りろん|理论
+実践|じっせん|实践
+実用|じつよう|实用
+応用|おうよう|应用
+基礎|きそ|基础
+基盤|きばん|基础
+土台|どだい|根基
+根幹|こんかん|根本
+画期的|かっきてき|划时代的
+革新的|かくしんてき|革新的
+独創的|どくそうてき|独创的
+先端的|せんたんてき|尖端的
+先進的|せんしんてき|先进的
+伝統的|でんとうてき|传统的
+歴史的|れきしてき|历史性的
+文化的|ぶんかてき|文化的
+国際的|こくさいてき|国际性的
+地域的|ちいきてき|地域性的
+政治的|せいじてき|政治的
+法的|ほうてき|法律的
+倫理的|りんりてき|伦理的
+道徳的|どうとくてき|道德的
+宗教的|しゅうきょうてき|宗教的
+科学的|かがくてき|科学的
+技術的|ぎじゅつてき|技术的
+専門的|せんもんてき|专业的
+実践的|じっせんてき|实践的
+理論的|りろんてき|理论的
+実証的|じっしょうてき|实证的
+検討課題|けんとうかだい|探讨课题
+解決策|かいけつさく|解决方案
+改善策|かいぜんさく|改善方案
+対策案|たいさくあん|对策方案
+方策|ほうさく|方策
+方法論|ほうほうろん|方法论
+アプローチ|あぷろーち|方法；途径
+プロセス|ぷろせす|过程
+ステップ|すてっぷ|步骤
+フェーズ|ふぇーず|阶段
+サイクル|さいくる|周期
+メカニズム|めかにずむ|机制
+システム|しすてむ|系统
+ネットワーク|ねっとわーく|网络
+データ|でーた|数据
+データベース|でーたべーす|数据库
+プログラム|ぷろぐらむ|程序
+ソフトウェア|そふとうぇあ|软件
+ハードウェア|はーどうぇあ|硬件
+デジタル|でじたる|数字的
+アナログ|あなろぐ|模拟的
+インターネット|いんたーねっと|互联网
+ウェブサイト|うぇぶさいと|网站
+メール|めーる|邮件
+アプリ|あぷり|应用
+クラウド|くらうど|云端
+セキュリティ|せきゅりてぃ|安全
+プライバシー|ぷらいばしー|隐私
+個人情報|こじんじょうほう|个人信息
+知的財産|ちてきざいさん|知识产权
+著作権|ちょさくけん|著作权
+特許|とっきょ|专利
+商標|しょうひょう|商标
+敬意|けいい|敬意
+尊敬|そんけい|尊敬
+`, 
+N1:`
+概念|がいねん|概念
+理念|りねん|理念
+定義|ていぎ|定义
+前提|ぜんてい|前提
+論理|ろんり|逻辑
+仮説|かせつ|假说
+検証|けんしょう|验证
+実証|じっしょう|实证
+客観|きゃっかん|客观
+主観|しゅかん|主观
+抽象|ちゅうしょう|抽象
+具体|ぐたい|具体
+普遍|ふへん|普遍
+特殊|とくしゅ|特殊
+独自|どくじ|独自
+固有|こゆう|固有
+本質|ほんしつ|本质
+核心|かくしん|核心
+背景|はいけい|背景
+経緯|けいい|经过
+過程|かてい|过程
+段階|だんかい|阶段
+推移|すいい|推移
+動向|どうこう|动向
+構想|こうそう|构想
+方針|ほうしん|方针
+戦略|せんりゃく|战略
+施策|しさく|措施
+体制|たいせい|体制
+構造|こうぞう|构造
+機能|きのう|功能
+役割|やくわり|作用
+意義|いぎ|意义
+貢献|こうけん|贡献
+懸念|けねん|担忧
+模索|もさく|摸索
+踏まえる|ふまえる|依据；考虑到
+覆す|くつがえす|颠覆
+携わる|たずさわる|从事
+免れる|まぬかれる|避免
+甚だしい|はなはだしい|极其
+顕著|けんちょ|显著
+脆弱|ぜいじゃく|脆弱
+齟齬|そご|分歧；不一致
+逡巡|しゅんじゅん|犹豫
+拮抗|きっこう|抗衡
+暫定|ざんてい|暂定
+曖昧模糊|あいまいもこ|模糊不清
+一朝一夕|いっちょういっせき|一朝一夕
+試行錯誤|しこうさくご|反复试验
+暗中模索|あんちゅうもさく|暗中摸索
+異口同音|いくどうおん|异口同声
+一石二鳥|いっせきにちょう|一石二鸟
+自業自得|じごうじとく|自作自受
+十人十色|じゅうにんといろ|十人十色
+切磋琢磨|せっさたくま|切磋琢磨
+以心伝心|いしんでんしん|以心传心
+臨機応変|りんきおうへん|随机应变
+起死回生|きしかいせい|起死回生
+五里霧中|ごりむちゅう|五里雾中
+意識的|いしきてき|有意识的
+無意識|むいしき|无意识
+客観的|きゃっかんてき|客观的
+主観的|しゅかんてき|主观的
+積極的|せっきょくてき|积极的
+消極的|しょうきょくてき|消极的
+具体的|ぐたいてき|具体的
+抽象的|ちゅうしょうてき|抽象的
+一般的|いっぱんてき|一般的
+個人的|こじんてき|个人的
+社会的|しゃかいてき|社会的
+経済的|けいざいてき|经济的
+効率的|こうりつてき|高效的
+論理的|ろんりてき|逻辑的
+合理的|ごうりてき|合理的
+感覚的|かんかくてき|感觉的
+印象的|いんしょうてき|印象深刻的
+特徴的|とくちょうてき|有特征的
+典型的|てんけいてき|典型的
+象徴的|しょうちょうてき|象征性的
+本質的|ほんしつてき|本质的
+継続的|けいぞくてき|持续的
+一時的|いちじてき|暂时的
+趣旨|しゅし|宗旨
+意図|いと|意图
+狙い|ねらい|目标；意图
+目的意識|もくてきいしき|目的意识
+理論武装|りろんぶそう|理论武装
+論争|ろんそう|论争
+論駁|ろんばく|反驳
+弁証|べんしょう|辩证
+弁論|べんろん|辩论
+解釈|かいしゃく|解释
+見解|けんかい|见解
+所見|しょけん|所见；意见
+見地|けんち|观点；立场
+観点|かんてん|观点
+視点|してん|视点
+着眼点|ちゃくがんてん|着眼点
+発想|はっそう|构思
+着想|ちゃくそう|构思
+創意|そうい|创意
+工夫|くふう|钻研；巧思
+知恵|ちえ|智慧
+洞察|どうさつ|洞察
+見識|けんしき|见识
+見通し|みとおし|预测；前景
+展望|てんぼう|展望
+予見|よけん|预见
+先見|せんけん|先见
+分析力|ぶんせきりょく|分析力
+総合|そうごう|综合
+調和|ちょうわ|调和
+均衡|きんこう|均衡
+バランス|ばらんす|平衡
+調節|ちょうせつ|调节
+最適化|さいてきか|最优化
+効率化|こうりつか|效率化
+合理化|ごうりか|合理化
+標準化|ひょうじゅんか|标准化
+統一|とういつ|统一
+均一|きんいつ|均一
+画一|かくいつ|划一
+多様|たよう|多样
+柔軟|じゅうなん|灵活
+弾力|だんりょく|弹性
+適応力|てきおうりょく|适应力
+対応力|たいおうりょく|应对力
+危機管理|ききかんり|危机管理
+リスク|りすく|风险
+リスク管理|りすくかんり|风险管理
+回避|かいひ|回避
+予防|よぼう|预防
+備え|そなえ|防备
+準備万端|じゅんびばんたん|准备万全
+心構え|こころがまえ|心理准备
+覚悟|かくご|觉悟
+決意|けつい|决心
+決断|けつだん|决断
+意志|いし|意志
+意欲|いよく|意愿
+やる気|やるき|干劲
+向上心|こうじょうしん|上进心
+探究心|たんきゅうしん|探究心
+好奇心|こうきしん|好奇心
+チャレンジ|ちゃれんじ|挑战
+挑戦|ちょうせん|挑战
+達成感|たっせいかん|成就感
+充実感|じゅうじつかん|充实感
+満足感|まんぞくかん|满足感
+幸福感|こうふくかん|幸福感
+安心感|あんしんかん|安心感
+信頼感|しんらいかん|信赖感
+連帯感|れんたいかん|连带感
+一体感|いったいかん|一体感
+恒久的|こうきゅうてき|永久的
+`, 
+EJU:`
+数学|すうがく|数学
+物理|ぶつり|物理
+化学|かがく|化学
+生物|せいぶつ|生物
+地学|ちがく|地学
+地理|ちり|地理
+日本史|にほんし|日本史
+世界史|せかいし|世界史
+公民|こうみん|公民
+総合科目|そうごうかもく|综合科目
+記述|きじゅつ|记述
+選択|せんたく|选择
+解答|かいとう|解答
+設問|せつもん|设问
+正解|せいかい|正确答案
+誤答|ごとう|错误答案
+満点|まんてん|满分
+合格|ごうかく|合格
+不合格|ふごうかく|不合格
+偏差値|へんさち|偏差值
+志望|しぼう|志愿
+出願|しゅつがん|报名申请
+願書|がんしょ|申请书
+募集|ぼしゅう|招生；征集
+定員|ていいん|定员
+選考|せんこう|选拔
+面接試験|めんせつしけん|面试考试
+小論文|しょうろんぶん|小论文
+志望理由書|しぼうりゆうしょ|志愿理由书
+推薦|すいせん|推荐
+学費|がくひ|学费
+奨学金|しょうがくきん|奖学金
+授業料|じゅぎょうりょう|学费
+寮|りょう|宿舍
+下宿|げしゅく|寄宿
+一人暮らし|ひとりぐらし|独居
+生活費|せいかつひ|生活费
+在留カード|ざいりゅうかーど|在留卡
+ビザ|びざ|签证
+入国|にゅうこく|入境
+出国|しゅっこく|出境
+税関|ぜいかん|海关
+免許|めんきょ|驾照
+保険|ほけん|保险
+国民健康保険|こくみんけんこうほけん|国民健康保险
+区役所|くやくしょ|区政府
+市役所|しやくしょ|市政府
+登録|とうろく|登记
+印鑑|いんかん|印章
+通帳|つうちょう|存折
+振込|ふりこみ|转账
+引き出し|ひきだし|取款
+家賃|やちん|房租
+光熱費|こうねつひ|水电燃气费
+契約書|けいやくしょ|合同书
+不動産|ふどうさん|房地产
+持続可能|じぞくかのう|可持续
+再帰|さいき|递归
+遺伝子|いでんし|基因
+細胞|さいぼう|细胞
+免疫|めんえき|免疫
+ウイルス|ういるす|病毒
+磁場|じば|磁场
+重力|じゅうりょく|重力
+電磁気|でんじき|电磁
+酸化|さんか|氧化
+還元|かんげん|还原
+触媒|しょくばい|催化剂
+有機|ゆうき|有机
+無機|むき|无机
+酵素|こうそ|酶
+光合成|こうごうせい|光合作用
+蒸発|じょうはつ|蒸发
+凝固|ぎょうこ|凝固
+溶解|ようかい|溶解
+濃度|のうど|浓度
+反応|はんのう|反应
+方程式|ほうていしき|方程式
+関数|かんすう|函数
+微分|びぶん|微分
+積分|せきぶん|积分
+確率|かくりつ|概率
+統計|とうけい|统计
+平均値|へいきんち|平均值
+中央値|ちゅうおうち|中位数
+標準偏差|ひょうじゅんへんさ|标准差
+相関|そうかん|相关
+論述|ろんじゅつ|论述
+要約|ようやく|摘要
+引用|いんよう|引用
+参考文献|さんこうぶんけん|参考文献
+序論|じょろん|绪论
+本論|ほんろん|本论
+結論|けつろん|结论
+反論|はんろん|反驳
+例証|れいしょう|例证
+比較|ひかく|比较
+対照|たいしょう|对照
+傾向|けいこう|倾向
+要因|よういん|要因
+影響|えいきょう|影响
+解決策|かいけつさく|解决方案
+課題|かだい|课题
+現状|げんじょう|现状
+将来|しょうらい|将来
+発展途上|はってんとじょう|发展中的
+先進国|せんしんこく|发达国家
+開発途上国|かいはつとじょうこく|发展中国家
+人口問題|じんこうもんだい|人口问题
+環境問題|かんきょうもんだい|环境问题
+食料問題|しょくりょうもんだい|粮食问题
+エネルギー|えねるぎー|能源
+再生可能|さいせいかのう|可再生的
+温暖化|おんだんか|变暖
+排出|はいしゅつ|排放
+削減|さくげん|削减
+条約|じょうやく|条约
+微分積分|びぶんせきぶん|微积分
+線形代数|せんけいだいすう|线性代数
+微分方程式|びぶんほうていしき|微分方程
+確率分布|かくりつぶんぷ|概率分布
+統計学|とうけいがく|统计学
+力学|りきがく|力学
+熱力学|ねつりきがく|热力学
+電磁気学|でんじきがく|电磁学
+波動|はどう|波动
+量子|りょうし|量子
+相対性|そうたいせい|相对性
+有機化学|ゆうきかがく|有机化学
+無機化学|むきかがく|无机化学
+生化学|せいかがく|生物化学
+分子|ぶんし|分子
+原子|げんし|原子
+電子|でんし|电子
+陽子|ようし|质子
+中性子|ちゅうせいし|中子
+元素|げんそ|元素
+周期表|しゅうきひょう|周期表
+化合物|かごうぶつ|化合物
+混合物|こんごうぶつ|混合物
+溶液|ようえき|溶液
+酸性|さんせい|酸性
+アルカリ性|あるかりせい|碱性
+中和|ちゅうわ|中和
+電気分解|でんきぶんかい|电解
+蒸留|じょうりゅう|蒸馏
+抽出|ちゅうしゅつ|萃取
+生物学|せいぶつがく|生物学
+遺伝|いでん|遗传
+進化|しんか|进化
+生態系|せいたいけい|生态系统
+食物連鎖|しょくもつれんさ|食物链
+細胞分裂|さいぼうぶんれつ|细胞分裂
+DNA|でぃーえぬえー|DNA
+タンパク質|たんぱくしつ|蛋白质
+酵素反応|こうそはんのう|酶反应
+代謝|たいしゃ|代谢
+地質|ちしつ|地质
+鉱物|こうぶつ|矿物
+地震学|じしんがく|地震学
+気象|きしょう|气象
+気候|きこう|气候
+大気|たいき|大气
+海洋|かいよう|海洋
+地球温暖化|ちきゅうおんだんか|全球变暖
+砂漠化|さばくか|沙漠化
+森林破壊|しんりんはかい|森林破坏
+絶滅危惧種|ぜつめつきぐしゅ|濒危物种
+生態保護|せいたいほご|生态保护
+リサイクル|りさいくる|回收
+持続可能性|じぞくかのうせい|可持续性
+再生可能エネルギー|さいせいかのうえねるぎー|可再生能源
+原子力|げんしりょく|核能
+化石燃料|かせきねんりょう|化石燃料
+石油|せきゆ|石油
+天然ガス|てんねんがす|天然气
+電力|でんりょく|电力
+送電|そうでん|输电
+経済成長|けいざいせいちょう|经济增长
+国内総生産|こくないそうせいさん|GDP
+国民所得|こくみんしょとく|国民收入
+物価指数|ぶっかしすう|物价指数
+インフレ|いんふれ|通货膨胀
+デフレ|でふれ|通货紧缩
+失業率|しつぎょうりつ|失业率
+雇用|こよう|雇用
+労働市場|ろうどうしじょう|劳动力市场
+市場経済|しじょうけいざい|市场经济
+計画経済|けいかくけいざい|计划经济
+需要と供給|じゅようときょうきゅう|供需
+競争原理|きょうそうげんり|竞争原理
+国際貿易|こくさいぼうえき|国际贸易
+比較優位|ひかくゆうい|比较优势
+為替相場|かわせそうば|汇率行情
+金融政策|きんゆうせいさく|金融政策
+財政政策|ざいせいせいさく|财政政策
+税制|ぜいせい|税制
+社会保障|しゃかいほしょう|社会保障
+福祉|ふくし|福祉
+少子高齢化|しょうしこうれいか|少子老龄化
+人口動態|じんこうどうたい|人口动态
+移民|いみん|移民
+協定|きょうてい|协定
+`, 
+日常:`
+買い物|かいもの|购物
+料理|りょうり|烹饪
+掃除|そうじ|打扫
+洗濯|せんたく|洗衣
+散歩|さんぽ|散步
+天気予報|てんきよほう|天气预报
+携帯|けいたい|手机
+充電|じゅうでん|充电
+薬|くすり|药
+残業|ざんぎょう|加班
+休暇|きゅうか|休假
+引っ越し|ひっこし|搬家
+近所|きんじょ|附近
+交番|こうばん|派出所
+駐車場|ちゅうしゃじょう|停车场
+駐輪場|ちゅうりんじょう|自行车停车场
+自転車|じてんしゃ|自行车
+電車|でんしゃ|电车
+地下鉄|ちかてつ|地铁
+新幹線|しんかんせん|新干线
+定期券|ていきけん|月票
+コンビニ|こんびに|便利店
+スーパー|すーぱー|超市
+百円ショップ|ひゃくえんしょっぷ|百元店
+レジ袋|れじぶくろ|塑料袋
+袋|ふくろ|袋子
+お釣り|おつり|找零
+現金|げんきん|现金
+クレジットカード|くれじっとかーど|信用卡
+領収書|りょうしゅうしょ|收据
+メニュー|めにゅー|菜单
+注文|ちゅうもん|点单
+お会計|おかいけい|结账
+持ち帰り|もちかえり|打包；外卖
+定食|ていしょく|套餐
+ラーメン|らーめん|拉面
+寿司|すし|寿司
+天ぷら|てんぷら|天妇罗
+味噌汁|みそしる|味噌汤
+おにぎり|おにぎり|饭团
+弁当|べんとう|便当
+歯ブラシ|はぶらし|牙刷
+タオル|たおる|毛巾
+石鹸|せっけん|肥皂
+シャンプー|しゃんぷー|洗发水
+ゴミ|ごみ|垃圾
+燃えるゴミ|もえるごみ|可燃垃圾
+燃えないゴミ|もえないごみ|不可燃垃圾
+資源ゴミ|しげんごみ|可回收垃圾
+分別|ぶんべつ|分类
+防災|ぼうさい|防灾
+地震|じしん|地震
+台風|たいふう|台风
+避難|ひなん|避难
+救急車|きゅうきゅうしゃ|救护车
+警察|けいさつ|警察
+落とし物|おとしもの|失物
+迷子|まいご|走失
+美容院|びよういん|理发店
+歯医者|はいしゃ|牙医
+眼科|がんか|眼科
+内科|ないか|内科
+外科|げか|外科
+処方箋|しょほうせん|处方
+症状|しょうじょう|症状
+熱|ねつ|发烧
+風邪|かぜ|感冒
+怪我|けが|受伤
+入院|にゅういん|住院
+退院|たいいん|出院
+手術|しゅじゅつ|手术
+検査|けんさ|检查
+診察|しんさつ|诊察
+運動不足|うんどうぶそく|运动不足
+睡眠不足|すいみんぶそく|睡眠不足
+健康|けんこう|健康
+栄養|えいよう|营养
+睡眠|すいみん|睡眠
+ストレス|すとれす|压力
+リラックス|りらっくす|放松
+ストレッチ|すとれっち|拉伸
+ジョギング|じょぎんぐ|慢跑
+ウォーキング|うぉーきんぐ|散步
+ダイエット|だいえっと|减肥
+体重|たいじゅう|体重
+身長|しんちょう|身高
+体温|たいおん|体温
+血圧|けつあつ|血压
+髪|かみ|头发
+顔|かお|脸
+目|め|眼睛
+耳|みみ|耳朵
+鼻|はな|鼻子
+口|くち|嘴
+歯|は|牙齿
+首|くび|脖子
+肩|かた|肩膀
+腕|うで|手臂
+手|て|手
+指|ゆび|手指
+胸|むね|胸
+お腹|おなか|肚子
+背中|せなか|背
+足|あし|脚
+膝|ひざ|膝盖
+爪|つめ|指甲
+肌|はだ|皮肤
+声|こえ|声音
+力|ちから|力量
+心|こころ|心
+頭|あたま|头
+体|からだ|身体
+住所|じゅうしょ|住址
+名前|なまえ|名字
+電話番号|でんわばんごう|电话号码
+誕生日|たんじょうび|生日
+年齢|ねんれい|年龄
+性別|せいべつ|性别
+国籍|こくせき|国籍
+職業|しょくぎょう|职业
+趣味|しゅみ|爱好
+特技|とくぎ|特长
+性格|せいかく|性格
+習慣|しゅうかん|习惯
+経験|けいけん|经验
+資格|しかく|资格
+免許|めんきょ|执照
+パスポート|ぱすぽーと|护照
+チケット|ちけっと|票
+お土産|おみやげ|土特产
+プレゼント|ぷれぜんと|礼物
+お祝い|おいわい|庆祝
+お見舞い|おみまい|探望
+お祭り|おまつり|祭典
+花火|はなび|烟花
+旅行|りょこう|旅行
+観光|かんこう|观光
+温泉|おんせん|温泉
+ホテル|ほてる|酒店
+旅館|りょかん|旅馆
+予約|よやく|预约
+チェックイン|ちぇっくいん|入住
+チェックアウト|ちぇっくあうと|退房
+荷物|にもつ|行李
+スーツケース|すーつけーす|行李箱
+お土産屋|おみやげや|特产店
+写真|しゃしん|照片
+カメラ|かめら|相机
+地図|ちず|地图
+案内所|あんないじょ|咨询处
+道|みち|路
+信号|しんごう|信号灯
+交差点|こうさてん|十字路口
+橋|はし|桥
+公園|こうえん|公园
+病院|びょういん|医院
+郵便局|ゆうびんきょく|邮局
+銀行|ぎんこう|银行
+空港|くうこう|机场
+港|みなと|港口
+駅前|えきまえ|车站前
+商店街|しょうてんがい|商店街
+横断歩道|おうだんほどう|人行横道
+歩道|ほどう|人行道
+車道|しゃどう|车道
+信号機|しんごうき|信号灯
+踏切|ふみきり|铁路道口
+高速道路|こうそくどうろ|高速公路
+一般道|いっぱんどう|普通道路
+渋滞|じゅうたい|堵车
+運転手|うんてんしゅ|司机
+乗客|じょうきゃく|乘客
+乗り換え|のりかえ|换乘
+終電|しゅうでん|末班车
+始発|しはつ|首班车
+急行|きゅうこう|快车
+特急|とっきゅう|特快
+指定席|していせき|对号座
+自由席|じゆうせき|自由座
+片道|かたみち|单程
+往復|おうふく|往返
+乗車券|じょうしゃけん|车票
+回数券|かいすうけん|回数券
+ICカード|あいしーかーど|IC卡
+チャージ|ちゃーじ|充值
+残高|ざんだか|余额
+運賃|うんちん|车费
+料金所|りょうきんじょ|收费站
+診察券|しんさつけん|就诊卡
+保険証|ほけんしょう|保险证
+待合室|まちあいしつ|候诊室
+受付|うけつけ|接待处
+予約票|よやくひょう|预约单
+薬局|やっきょく|药房
+処方薬|しょほうやく|处方药
+市販薬|しはんやく|非处方药
+副作用|ふくさよう|副作用
+服用|ふくよう|服用
+食前|しょくぜん|饭前
+食後|しょくご|饭后
+注射|ちゅうしゃ|注射
+点滴|てんてき|点滴
+入院費|にゅういんひ|住院费
+診断書|しんだんしょ|诊断书
+健康診断|けんこうしんだん|健康体检
+予防接種|よぼうせっしゅ|预防接种
+救急|きゅうきゅう|急救
+夜間診療|やかんしんりょう|夜间门诊
+看護師|かんごし|护士
+医師|いし|医生
+薬剤師|やくざいし|药剂师
+患者|かんじゃ|患者
+病状|びょうじょう|病情
+集中治療室|しゅうちゅうちりょうしつ|重症监护室
+満席|まんせき|满座
+空席|くうせき|空座
+予約席|よやくせき|预约座
+おしぼり|おしぼり|湿毛巾
+お通し|おとおし|餐前小菜
+お品書き|おしながき|菜单
+日替わり|ひがわり|每日更换
+セット|せっと|套餐
+単品|たんぴん|单点
+大盛り|おおもり|大份
+小盛り|こもり|小份
+おかわり|おかわり|再来一碗
+お冷|おひや|冷水
+お湯|おゆ|热水
+ストロー|すとろー|吸管
+お箸|おはし|筷子
+スプーン|すぷーん|勺子
+フォーク|ふぉーく|叉子
+ナイフ|ないふ|刀
+取り皿|とりざら|分餐盘
+カウンター|かうんたー|吧台
+個室|こしつ|包间
+禁煙席|きんえんせき|禁烟席
+喫煙席|きつえんせき|吸烟席
+食べ放題|たべほうだい|自助餐
+飲み放題|のみほうだい|无限畅饮
+割り勘|わりかん|AA制
+ごちそう|ごちそう|请客
+就職活動|しゅうしょくかつどう|求职
+面接官|めんせつかん|面试官
+応募者|おうぼしゃ|应聘者
+採用|さいよう|录用
+不採用|ふさいよう|未录用
+内定|ないてい|内定
+入社|にゅうしゃ|入职
+退社|たいしゃ|下班；离职
+出社|しゅっしゃ|上班
+勤務時間|きんむじかん|工作时间
+残業代|ざんぎょうだい|加班费
+有給休暇|ゆうきゅうきゅうか|带薪休假
+異動|いどう|调动
+転勤|てんきん|调职
+昇進|しょうしん|升职
+昇給|しょうかい|加薪
+部下|ぶか|部下
+上司|じょうし|上司
+同僚|どうりょう|同事
+先輩|せんぱい|前辈
+後輩|こうはい|后辈
+新入社員|しんにゅうしゃいん|新员工
+役員|やくいん|董事
+部長|ぶちょう|部长
+課長|かちょう|课长
+社長|しゃちょう|社长
+会長|かいちょう|会长
+名刺|めいし|名片
+名刺交換|めいしこうかん|交换名片
+報連相|ほうれんそう|汇报联络商量
+会議室|かいぎしつ|会议室
+議事録|ぎじろく|会议纪要
+経費精算|けいひせいさん|报销
+就業規則|しゅうぎょうきそく|就业规则
+雇用契約|こようけいやく|雇佣合同
+社会保険|しゃかいほけん|社会保险
+年金|ねんきん|年金
+一軒家|いっけんや|独栋房屋
+アパート|あぱーと|公寓
+マンション|まんしょん|高级公寓
+団地|だんち|住宅小区
+間取り|まどり|户型
+和室|わしつ|和室
+洋室|ようしつ|洋室
+押入れ|おしいれ|壁橱
+布団|ふとん|被褥
+ベッド|べっど|床
+ソファー|そふぁー|沙发
+冷蔵庫|れいぞうこ|冰箱
+洗濯機|せんたくき|洗衣机
+電子レンジ|でんしれんじ|微波炉
+炊飯器|すいはんき|电饭煲
+掃除機|そうじき|吸尘器
+エアコン|えあこん|空调
+暖房|だんぼう|暖气
+冷房|れいぼう|冷气
+給湯器|きゅうとうき|热水器
+インターホン|いんたーほん|门铃对讲机
+郵便受け|ゆうびんうけ|信箱
+宅配ボックス|たくはいぼっくす|快递柜
+ベランダ|べらんだ|阳台
+カーテン|かーてん|窗帘
+照明|しょうめい|照明
+電球|でんきゅう|灯泡
+コンセント|こんせんと|插座
+水道|すいどう|自来水
+電気代|でんきだい|电费
+水道代|すいどうだい|水费
+ガス代|がすだい|燃气费
+更新料|こうしんりょう|续约费
+礼金|れいきん|礼金
+敷金|しききん|押金
+仲介手数料|ちゅうかいてすうりょう|中介费
+管理費|かんりひ|管理费
+共益費|きょうえきひ|公摊费
+口座|こうざ|账户
+普通預金|ふつうよきん|活期存款
+定期預金|ていきよきん|定期存款
+口座番号|こうざばんごう|账号
+暗証番号|あんしょうばんごう|密码
+キャッシュカード|きゃっしゅかーど|银行卡
+振り込み手数料|ふりこみてすうりょう|转账手续费
+自動引き落とし|じどうひきおとし|自动扣款
+残高照会|ざんだかしょうかい|余额查询
+入金|にゅうきん|入账
+出金|しゅっきん|取款
+送金|そうきん|汇款
+両替|りょうがえ|兑换
+外貨|がいか|外币
+利率|りりつ|利率
+利息|りそく|利息
+ローン|ろーん|贷款
+延滞|えんたい|逾期
+保証人|ほしょうにん|担保人
+デビットカード|でびっとかーど|借记卡
+電子マネー|でんしまねー|电子货币
+ポイントカード|ぽいんとかーど|积分卡
+固定電話|こていでんわ|固定电话
+携帯電話|けいたいでんわ|手机
+スマホ|すまほ|智能手机
+公衆電話|こうしゅうでんわ|公共电话
+留守番電話|るすばんでんわ|录音电话
+着信|ちゃくしん|来电
+発信|はっしん|拨出
+通話|つうわ|通话
+通話料|つうわりょう|通话费
+電波|でんぱ|信号
+圏外|けんがい|无信号
+着信音|ちゃくしんおん|铃声
+マナーモード|まなーもーど|静音模式
+メッセージ|めっせーじ|消息
+折り返し|おりかえし|回电
+かけ直す|かけなおす|重拨
+晴れ|はれ|晴天
+曇り|くもり|多云
+霧|きり|雾
+雷|かみなり|雷
+稲妻|いなずま|闪电
+嵐|あらし|暴风雨
+豪雨|ごうう|暴雨
+洪水|こうずい|洪水
+干ばつ|かんばつ|干旱
+猛暑|もうしょ|酷暑
+厳寒|げんかん|严寒
+気温|きおん|气温
+湿度|しつど|湿度
+降水確率|こうすいかくりつ|降水概率
+風速|ふうそく|风速
+気圧|きあつ|气压
+天候|てんこう|天候
+季節|きせつ|季节
+春|はる|春
+夏|なつ|夏
+秋|あき|秋
+冬|ふゆ|冬
+梅雨|つゆ|梅雨
+四季|しき|四季
+気候変動|きこうへんどう|气候变化
+深夜|しんや|深夜
+早朝|そうちょう|清晨
+夕方|ゆうがた|傍晚
+夜中|よなか|半夜
+明け方|あけがた|黎明
+今後|こんご|今后
+当時|とうじ|当时
+時期|じき|时期
+時代|じだい|时代
+年代|ねんだい|年代
+世紀|せいき|世纪
+年度|ねんど|年度
+上半期|かみはんき|上半期
+下半期|しもはんき|下半期
+四半期|しはんき|季度
+週末|しゅうまつ|周末
+平日|へいじつ|平日
+祝日|しゅくじつ|节假日
+連休|れんきゅう|连休
+年末年始|ねんまつねんし|年末年初
+締め切り|しめきり|截止日期
+期限|きげん|期限
+予定通り|よていどおり|按计划
+市場|いちば|市场
+`
+};
+
+function buildBase(){
+  const out=[];
+  for(const lv in RAW){
+    const lines=RAW[lv].trim().split('\n');
+    for(const line of lines){
+      const p=line.trim().split('|');
+      if(p.length<3)continue;
+      const cat=lv==='日常'?'生活':(lv==='EJU'?'留考':
+        (lv==='N5'?'基础':lv==='N4'?'进阶':lv==='N3'?'中级':lv==='N2'?'高级':'精通'));
+      out.push({w:p[0].trim(),k:p[1].trim(),m:p[2].trim(),lv,cat});
+    }
+  }
+  return out;
+}
+const BASE_WORDS=buildBase();
+
+/* =========================================================
+   3. 大学
+   ========================================================= */
+const UNIVERSITIES=[
+  {rank:1,ja:'東京大学',kana:'とうきょうだいがく',cn:'东京大学',tag:'国立',desc:'1877 年创立，日本最高学府。赤门之内，是无数个清晨换来的位置。'},
+  {rank:2,ja:'京都大学',kana:'きょうとだいがく',cn:'京都大学',tag:'国立',desc:'“自由的学风”是京大的灵魂。诺奖得主与怪才辈出，学问在这里是活的。'},
+  {rank:3,ja:'大阪大学',kana:'おおさかだいがく',cn:'大阪大学',tag:'国立',desc:'关西的骄傲。理工与医学实力雄厚，实践型学者的摇篮。'},
+  {rank:4,ja:'東京科学大学',kana:'とうきょうかがくだいがく',cn:'东京科学大学',tag:'国立',desc:'2024 年由东工大与东京医科齿科大学合并而成，理工医融合的新顶点。'},
+  {rank:5,ja:'東北大学',kana:'とうほくだいがく',cn:'东北大学',tag:'国立',desc:'仙台的学术重镇。材料科学研究世界闻名，金属研究所无人不晓。'},
+  {rank:6,ja:'名古屋大学',kana:'なごやだいがく',cn:'名古屋大学',tag:'国立',desc:'中部地区的学术中心。物理学领域诺奖得主辈出，研究氛围纯粹。'},
+  {rank:7,ja:'九州大学',kana:'きゅうしゅうだいがく',cn:'九州大学',tag:'国立',desc:'福冈的学术殿堂。亚洲交流的窗口，伊都校区开阔而宁静。'},
+  {rank:8,ja:'北海道大学',kana:'ほっかいどうだいがく',cn:'北海道大学',tag:'国立',desc:'札幌的辽阔校园。白杨大道上，冬天会落满雪，是日本最美的校园之一。'},
+  {rank:9,ja:'一橋大学',kana:'ひとつばしだいがく',cn:'一桥大学',tag:'国立',desc:'日本的商科第一。小而精，被誉为“东方的哈佛商学院”，政商人才辈出。'},
+  {rank:10,ja:'筑波大学',kana:'つくばだいがく',cn:'筑波大学',tag:'国立',desc:'茨城的学园都市。日本最国际化的国立大学之一，理工与体育见长。'},
+  {rank:11,ja:'慶應義塾大学',kana:'けいおうぎじゅくだいがく',cn:'庆应义塾大学',tag:'私立',desc:'私立双雄之一。三田会的精英网络，从商界一直延伸到政界。'},
+  {rank:12,ja:'早稲田大学',kana:'わせだだいがく',cn:'早稻田大学',tag:'私立',desc:'私立双雄之一。“学问独立”的校训，孕育了无数文学家与政治家。'}
+];
+
+/* =========================================================
+   4. 里程碑
+   ========================================================= */
+const MILESTONES=[
+  {id:'c10',type:'correct',at:10,icon:'🌱',title:'初めの一歩！',msg:'已经答对 10 题了。日语的大门，已经为你打开了。'},
+  {id:'c30',type:'correct',at:30,icon:'🔥',title:'いい調子！',msg:'30 题达成。这个节奏保持下去，你会走得很远。'},
+  {id:'c50',type:'correct',at:50,icon:'⚡',title:'50 题突破',msg:'50 题！假名已经开始在指尖流动了吧。'},
+  {id:'c100',type:'correct',at:100,icon:'🏅',title:'100 题達成！',msg:'100 题。这时候的你，和开始的那天已经完全不一样了。'},
+  {id:'c200',type:'correct',at:200,icon:'🎯',title:'习惯になった',msg:'200 题！学习已经从“任务”变成了“习惯”。'},
+  {id:'c300',type:'correct',at:300,icon:'🏆',title:'300 题！',msg:'东大的学生，也是这么一天一天练出来的。'},
+  {id:'c500',type:'correct',at:500,icon:'💎',title:'500 题！',msg:'你的指尖已经有了肌肉记忆。接下来只是时间问题。'},
+  {id:'c1000',type:'correct',at:1000,icon:'👑',title:'1000 題達成',msg:'1000 题。这已经不只是学习了，这是热爱。'},
+  {id:'l10',type:'learned',at:10,icon:'📖',title:'10 个单词',msg:'认识了 10 个新词。词汇量就是这样一点点堆起来的。'},
+  {id:'l30',type:'learned',at:30,icon:'📚',title:'30 个单词',msg:'30 个词！日常会话的一角已经被你拿下了。'},
+  {id:'l50',type:'learned',at:50,icon:'🗻',title:'50 个单词',msg:'50 个词。留考词汇这座山，你已经踩稳了第一块石头。'},
+  {id:'l100',type:'learned',at:100,icon:'🌟',title:'100 个单词！',msg:'100 个词达成。这已经足够应对很多日常场景了。'},
+  {id:'l200',type:'learned',at:200,icon:'🚀',title:'200 个单词',msg:'200 个词。距离“看得懂日文原文”又近了一步。'},
+  {id:'l300',type:'learned',at:300,icon:'🎓',title:'300 个单词',msg:'300 个词！N2 的词汇量已经被你摸到了。'},
+  {id:'l500',type:'learned',at:500,icon:'🌸',title:'500 个单词！',msg:'500 个词。日本前十的大学，正在前面等你。'},
+  {id:'l1000',type:'learned',at:1000,icon:'🏯',title:'1000 个单词！',msg:'1000 个词。这已经是留考级别的词汇量了。'}
+];
+
+/* =========================================================
+   5. 状态
+   ========================================================= */
+const STORAGE_KEY='jp_typing_v3';
+const CUSTOM_KEY='jp_typing_custom_v3';
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+const DEFAULT_STATE={stats:{},totalReps:0,totalCorrect:0,today:'',todayReps:0,todayCorrect:0,
+  milestones:{},settings:{showKana:false,autoNext:true}};
+let state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+let CUSTOM_WORDS=[];
+let WORDS=[];
+
+function loadAll(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){const s=JSON.parse(raw);state=Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)),s);}
+  }catch(e){}
+  if(!state.stats)state.stats={};
+  if(!state.milestones)state.milestones={};
+  if(!state.settings)state.settings={showKana:false,autoNext:true};
+  if(state.today!==todayStr()){state.today=todayStr();state.todayReps=0;state.todayCorrect=0;}
+  try{
+    const raw=localStorage.getItem(CUSTOM_KEY);
+    if(raw)CUSTOM_WORDS=JSON.parse(raw)||[];
+  }catch(e){CUSTOM_WORDS=[];}
+  if(!Array.isArray(CUSTOM_WORDS))CUSTOM_WORDS=[];
+  rebuildWords();
+}
+function rebuildWords(){
+  const all=BASE_WORDS.concat(CUSTOM_WORDS);
+  const seen=new Set();
+  WORDS=all.filter(x=>{
+    const k=x.w+'|'+x.k;
+    if(seen.has(k))return false;
+    seen.add(k);return true;
+  });
+}
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function saveCustom(){try{localStorage.setItem(CUSTOM_KEY,JSON.stringify(CUSTOM_WORDS));}catch(e){}}
+const keyOf=w=>w.w+'|'+w.k;
+
+/* =========================================================
+   6. DOM
+   ========================================================= */
+const $=id=>document.getElementById(id);
+const el={
+  topbar:$('topbar'),miniStat:$('miniStat'),practiceChips:$('practiceChips'),
+  badgeLv:$('badgeLv'),badgeCat:$('badgeCat'),badgeCount:$('badgeCount'),
+  meaning:$('meaning'),kanji:$('kanji'),kana:$('kana'),
+  answer:$('answer'),feedback:$('feedback'),btnHint:$('btnHint'),btnSkip:$('btnSkip'),
+  sTodayWords:$('sTodayWords'),sTodayReps:$('sTodayReps'),
+  sLearned:$('sLearned'),sTotalReps:$('sTotalReps'),
+  progText:$('progText'),progBar:$('progBar'),
+  levelStats:$('levelStats'),topWords:$('topWords'),progressSub:$('progressSub'),
+  uniList:$('uniList'),swKana:$('swKana'),swAuto:$('swAuto'),
+  libTotal:$('libTotal'),libCustom:$('libCustom'),libLearned:$('libLearned'),libCover:$('libCover'),
+  libSub:$('libSub'),fWord:$('fWord'),fKana:$('fKana'),fMean:$('fMean'),
+  fLevel:$('fLevel'),fCat:$('fCat'),btnSaveWord:$('btnSaveWord'),
+  btnCancelEdit:$('btnCancelEdit'),formTitle:$('formTitle'),
+  importArea:$('importArea'),importPreview:$('importPreview'),btnImport:$('btnImport'),
+  libSearch:$('libSearch'),libChips:$('libChips'),libList:$('libList'),
+  libLoadMore:$('libLoadMore'),btnExport:$('btnExport'),
+  btnReset:$('btnReset'),btnResetAll:$('btnResetAll'),
+  milestone:$('milestone'),msIcon:$('msIcon'),msTitle:$('msTitle'),
+  msMsg:$('msMsg'),msBtn:$('msBtn'),toast:$('toast')
+};
+
+/* =========================================================
+   7. 练习
+   ========================================================= */
+const FILTERS=[{key:'all',label:'全部'},{key:'N5',label:'N5'},{key:'N4',label:'N4'},
+  {key:'N3',label:'N3'},{key:'N2',label:'N2'},{key:'N1',label:'N1'},
+  {key:'EJU',label:'EJU'},{key:'日常',label:'日常'},{key:'自定义',label:'自定义'}];
+let currentFilter='all',currentWord=null,revealed=false,locked=false;
+
+function renderPracticeChips(){
+  el.practiceChips.innerHTML=FILTERS.map(f=>
+    '<button class="chip'+(f.key===currentFilter?' active':'')+'" data-key="'+f.key+'">'+f.label+'</button>'
+  ).join('');
+}
+el.practiceChips.addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');if(!chip)return;
+  currentFilter=chip.dataset.key;renderPracticeChips();renderWord();
+});
+function poolFor(key){
+  if(key==='all')return WORDS;
+  if(key==='自定义')return WORDS.filter(w=>w.cat==='自定义');
+  return WORDS.filter(w=>w.lv===key);
+}
+function pickWord(){
+  const pool=poolFor(currentFilter);
+  if(!pool.length)return null;
+  const arr=pool.map(w=>{
+    const st=state.stats[keyOf(w)];
+    return {w,n:st?st.n:0,last:st?st.last:0};
+  });
+  arr.sort((a,b)=>(a.n-b.n)||(a.last-b.last));
+  const slice=arr.slice(0,Math.min(24,arr.length));
+  let pick=slice[Math.floor(Math.random()*slice.length)].w;
+  let guard=0;
+  while(currentWord&&pick===currentWord&&slice.length>1&&guard++<15){
+    pick=slice[Math.floor(Math.random()*slice.length)].w;
+  }
+  return pick;
+}
+function renderWord(){
+  currentWord=pickWord();
+  if(!currentWord){
+    el.kanji.textContent='这个词源暂无单词';
+    el.meaning.textContent='请到「词库」页面添加';
+    el.kana.textContent='';
+    el.answer.disabled=true;
+    el.badgeLv.textContent='—';el.badgeCat.textContent='—';
+    el.badgeCount.textContent='练习 0 次';
+    return;
+  }
+  locked=false;revealed=false;
+  const st=state.stats[keyOf(currentWord)];
+  el.badgeLv.textContent=currentWord.lv;
+  el.badgeCat.textContent=currentWord.cat;
+  el.badgeCount.textContent='练习 '+(st?st.n:0)+' 次';
+  el.meaning.textContent=currentWord.m;
+  el.kanji.textContent=currentWord.w;
+  updateKana();
+  el.answer.value='';el.answer.disabled=false;
+  el.answer.classList.remove('wrong','correct');
+  el.feedback.textContent='';el.feedback.className='feedback';
+  el.btnSkip.textContent='跳过';
+  setTimeout(()=>{try{el.answer.focus();}catch(e){}},40);
+}
+function updateKana(){
+  if(!currentWord)return;
+  const show=state.settings.showKana||revealed;
+  el.kana.textContent=show?currentWord.k:'· · ·';
+  el.kana.classList.toggle('revealed',show);
+  el.kana.classList.toggle('placeholder',!show);
+}
+function onInput(){
+  if(!currentWord||locked)return;
+  const raw=el.answer.value;
+  if(!raw){el.answer.classList.remove('wrong');el.feedback.textContent='';
+    el.feedback.className='feedback';return;}
+  const typed=userInputToKana(raw);
+  const target=normalizeKana(currentWord.k);
+  if(typed===target){onCorrect();}
+  else if(typed&&!target.startsWith(typed)){
+    el.answer.classList.add('wrong');el.answer.classList.remove('correct');
+    el.feedback.textContent='✗ 还不对，按退格键修改';
+    el.feedback.className='feedback wrong';
+  }else{
+    el.answer.classList.remove('wrong');el.feedback.textContent='';
+    el.feedback.className='feedback';
+  }
+}
+function onCorrect(){
+  locked=true;
+  el.answer.classList.remove('wrong');el.answer.classList.add('correct');
+  el.feedback.textContent='✓ 正确！';el.feedback.className='feedback correct';
+  el.answer.disabled=true;
+  const k=keyOf(currentWord);const now=Date.now();
+  if(!state.stats[k])state.stats[k]={n:0,c:0,first:now,last:now};
+  state.stats[k].n+=1;state.stats[k].c+=1;state.stats[k].last=now;
+  state.totalReps+=1;state.totalCorrect+=1;
+  state.todayReps+=1;state.todayCorrect+=1;
+  saveState();updateMiniStat();checkMilestones();
+  if(state.settings.autoNext!==false){setTimeout(()=>{renderWord();},520);}
+  else{el.btnSkip.textContent='下一题 →';}
+}
+el.answer.addEventListener('input',onInput);
+el.answer.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();onInput();}});
+el.btnHint.addEventListener('click',()=>{revealed=true;updateKana();});
+el.btnSkip.addEventListener('click',()=>{renderWord();});
+
+/* =========================================================
+   8. 里程碑
+   ========================================================= */
+function countLearned(){let n=0;for(const k in state.stats)if(state.stats[k].n>0)n++;return n;}
+let msQueue=[],msShowing=false;
+function checkMilestones(){
+  const learned=countLearned(),correct=state.totalCorrect;
+  for(const m of MILESTONES){
+    if(state.milestones[m.id])continue;
+    const val=m.type==='correct'?correct:learned;
+    if(val>=m.at){state.milestones[m.id]=true;msQueue.push(m);}
+  }
+  saveState();
+  if(!msShowing)showNextMilestone();
+}
+function showNextMilestone(){
+  if(!msQueue.length){msShowing=false;return;}
+  msShowing=true;
+  const m=msQueue.shift();
+  el.msIcon.textContent=m.icon;el.msTitle.textContent=m.title;el.msMsg.textContent=m.msg;
+  el.milestone.classList.add('show');
+}
+el.msBtn.addEventListener('click',()=>{
+  el.milestone.classList.remove('show');msShowing=false;
+  setTimeout(showNextMilestone,220);
+});
+let toastTimer=null;
+function toast(msg){
+  el.toast.textContent=msg;el.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.toast.classList.remove('show'),1900);
+}
+
+/* =========================================================
+   9. 统计
+   ========================================================= */
+function updateMiniStat(){
+  const dk=new Date().toDateString();let tw=0;
+  for(const k in state.stats){
+    if(new Date(state.stats[k].last).toDateString()===dk)tw++;
+  }
+  el.miniStat.textContent='今日 '+tw+' 词 · 累计 '+state.totalCorrect+' 题';
+}
+function renderStats(){
+  const dk=new Date().toDateString();
+  let todayWords=0,learned=0;
+  for(const k in state.stats){
+    const st=state.stats[k];
+    if(st.n>0){learned++;if(new Date(st.last).toDateString()===dk)todayWords++;}
+  }
+  el.sTodayWords.textContent=todayWords;
+  el.sTodayReps.textContent=state.todayReps;
+  el.sLearned.textContent=learned;
+  el.sTotalReps.textContent=state.totalReps;
+  const total=WORDS.length||1;
+  el.progText.textContent=learned+' / '+WORDS.length;
+  el.progBar.style.width=Math.min(100,(learned/total*100))+'%';
+  const levels=['N5','N4','N3','N2','N1','EJU','日常','自定义'];
+  let html='';
+  for(const lv of levels){
+    const all=WORDS.filter(w=>lv==='自定义'?w.cat==='自定义':w.lv===lv);
+    if(!all.length)continue;
+    let done=0;
+    for(const w of all){
+      const st=state.stats[keyOf(w)];
+      if(st&&st.n>0)done++;
+    }
+    const pct=(done/all.length*100).toFixed(0);
+    html+='<div class="lvrow"><span class="lvname">'+lv+'</span>'+
+      '<div class="lvbar"><div style="width:'+pct+'%"></div></div>'+
+      '<span class="lvnum">'+done+'/'+all.length+'</span></div>';
+  }
+  el.levelStats.innerHTML=html||'<div class="empty">暂无数据</div>';
+  const entries=Object.keys(state.stats)
+    .map(k=>({key:k,...state.stats[k]}))
+    .filter(x=>x.n>0).sort((a,b)=>b.n-a.n).slice(0,12);
+  if(!entries.length){el.topWords.innerHTML='<div class="empty">还没有练习记录</div>';}
+  else{
+    el.topWords.innerHTML=entries.map(e=>{
+      const parts=e.key.split('|');
+      return '<div class="wordrow"><span class="wk">'+parts[0]+'</span>'+
+        '<span class="wy">'+parts[1]+'</span>'+
+        '<span class="wn">'+e.n+' 次</span></div>';
+    }).join('');
+  }
+  const hour=new Date().getHours();
+  let sub='今天也是积累的一天';
+  if(state.totalCorrect>=300)sub='你已经走了很远了，继续';
+  else if(state.totalCorrect>=100)sub='手感正在变好，保持住';
+  else if(state.totalCorrect>=30)sub='节奏出来了，别停下来';
+  else if(hour>=22)sub='夜深了，练完这一组就休息吧';
+  else if(hour<6)sub='这个时间还在学，佩服';
+  el.progressSub.textContent=sub;
+}
+
+/* =========================================================
+   10. 词库管理
+   ========================================================= */
+let libFilter='all',libQuery='',libShown=80,editingKey=null;
+const LIB_FILTERS=[{key:'all',label:'全部'},{key:'自定义',label:'自定义'},
+  {key:'N5',label:'N5'},{key:'N4',label:'N4'},{key:'N3',label:'N3'},
+  {key:'N2',label:'N2'},{key:'N1',label:'N1'},{key:'EJU',label:'EJU'},{key:'日常',label:'日常'}];
+
+function renderLibChips(){
+  el.libChips.innerHTML=LIB_FILTERS.map(f=>
+    '<button class="chip'+(f.key===libFilter?' active':'')+'" data-key="'+f.key+'">'+f.label+'</button>'
+  ).join('');
+}
+el.libChips.addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');if(!chip)return;
+  libFilter=chip.dataset.key;libShown=80;
+  renderLibChips();renderLibList();
+});
+el.libSearch.addEventListener('input',()=>{
+  libQuery=el.libSearch.value.trim().toLowerCase();
+  libShown=80;renderLibList();
+});
+function matchFilter(w){
+  if(libFilter==='all')return true;
+  if(libFilter==='自定义')return w.cat==='自定义';
+  return w.lv===libFilter;
+}
+function matchQuery(w){
+  if(!libQuery)return true;
+  return (w.w+w.k+w.m).toLowerCase().includes(libQuery);
+}
+function renderLibList(){
+  const filtered=WORDS.filter(w=>matchFilter(w)&&matchQuery(w));
+  const shown=filtered.slice(0,libShown);
+  if(!shown.length){
+    el.libList.innerHTML='<div class="empty">没有找到匹配的单词</div>';
+    el.libLoadMore.style.display='none';
+  }else{
+    el.libList.innerHTML=shown.map(w=>{
+      const isCustom=w.cat==='自定义';
+      const st=state.stats[keyOf(w)];
+      return '<div class="lib-item" data-key="'+keyOf(w)+'">'+
+        '<div class="lib-main">'+
+          '<div class="lib-w">'+w.w+'<span class="lib-k">'+w.k+'</span></div>'+
+          '<div class="lib-m">'+w.m+(st?' · 练过 '+st.n+' 次':'')+'</div>'+
+        '</div>'+
+        '<span class="lib-tag'+(isCustom?' custom':'')+'">'+w.lv+'</span>'+
+        (isCustom?'<button class="lib-btn" data-act="edit" title="编辑">✎</button>'+
+                  '<button class="lib-btn del" data-act="del" title="删除">✕</button>':'')+
+      '</div>';
+    }).join('');
+    el.libLoadMore.style.display=filtered.length>libShown?'block':'none';
+    el.libLoadMore.textContent='显示更多（剩余 '+(filtered.length-libShown)+'）';
+  }
+  const total=WORDS.length;
+  const custom=WORDS.filter(w=>w.cat==='自定义').length;
+  const learned=countLearned();
+  el.libTotal.textContent=total;
+  el.libCustom.textContent=custom;
+  el.libLearned.textContent=learned;
+  el.libCover.textContent=total?Math.round(learned/total*100)+'%':'0%';
+  el.libSub.textContent='内置 '+BASE_WORDS.length+' 词 · 自定义 '+custom+' 词 · 距离 4000 还差 '+Math.max(0,4000-total)+' 词';
+}
+el.libLoadMore.addEventListener('click',()=>{libShown+=100;renderLibList();});
+
+/* 添加 / 编辑 */
+el.btnSaveWord.addEventListener('click',()=>{
+  const w=el.fWord.value.trim(),k=el.fKana.value.trim(),m=el.fMean.value.trim();
+  if(!w||!k||!m){toast('请填写单词、假名和中文翻译');return;}
+  const lv=el.fLevel.value;
+  const catRaw=el.fCat.value.trim();
+  const cat=(lv==='自定义'||!catRaw)?'自定义':catRaw;
+  const item={w,k,m,lv,cat};
+  if(editingKey){
+    const idx=CUSTOM_WORDS.findIndex(x=>x.w+'|'+x.k===editingKey);
+    if(idx>=0){
+      const oldKey=editingKey,newKey=w+'|'+k;
+      if(oldKey!==newKey&&state.stats[oldKey]){
+        state.stats[newKey]=state.stats[oldKey];
+        delete state.stats[oldKey];saveState();
+      }
+      CUSTOM_WORDS[idx]=item;
+    }
+    toast('已更新单词');cancelEdit();
+  }else{
+    const exists=WORDS.find(x=>x.w===w&&x.k===k);
+    if(exists){toast('该单词已存在：'+exists.w+'（'+exists.k+'）');return;}
+    CUSTOM_WORDS.push(item);
+    toast('已添加：'+w+'（'+k+'）');
+  }
+  saveCustom();rebuildWords();renderLibList();renderPracticeChips();renderWord();
+  el.fWord.value='';el.fKana.value='';el.fMean.value='';el.fCat.value='';
+});
+function cancelEdit(){
+  editingKey=null;
+  el.formTitle.textContent='➕ 添加新单词';
+  el.btnSaveWord.textContent='添加单词';
+  el.btnCancelEdit.style.display='none';
+  el.fWord.value='';el.fKana.value='';el.fMean.value='';el.fCat.value='';
+}
+el.btnCancelEdit.addEventListener('click',cancelEdit);
+el.libList.addEventListener('click',e=>{
+  const btn=e.target.closest('.lib-btn'),row=e.target.closest('.lib-item');
+  if(!btn||!row)return;
+  const key=row.dataset.key;
+  const word=WORDS.find(x=>keyOf(x)===key);
+  if(!word)return;
+  if(btn.dataset.act==='edit'){
+    editingKey=key;
+    el.formTitle.textContent='✎ 编辑单词';
+    el.btnSaveWord.textContent='保存修改';
+    el.btnCancelEdit.style.display='block';
+    el.fWord.value=word.w;el.fKana.value=word.k;el.fMean.value=word.m;
+    el.fLevel.value=word.lv;
+    el.fCat.value=word.cat==='自定义'?'':word.cat;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }else if(btn.dataset.act==='del'){
+    if(!confirm('确定删除「'+word.w+'（'+word.k+'）」吗？'))return;
+    CUSTOM_WORDS=CUSTOM_WORDS.filter(x=>x.w+'|'+x.k!==key);
+    delete state.stats[key];
+    saveCustom();saveState();rebuildWords();
+    renderLibList();renderPracticeChips();renderWord();toast('已删除');
+  }
+});
+
+/* 批量导入（实时预览 + 千条支持） */
+function parseImport(text){
+  const lines=text.split('\n');
+  const items=[];let bad=0,dup=0;
+  const existing=new Set(WORDS.map(x=>x.w+'|'+x.k));
+  for(const line of lines){
+    const t=line.trim();
+    if(!t)continue;
+    const sep=t.includes('|')?'|':(t.includes(',')?',':null);
+    if(!sep){bad++;continue;}
+    const p=t.split(sep).map(s=>s.trim());
+    if(p.length<3||!p[0]||!p[1]||!p[2]){bad++;continue;}
+    const key=p[0]+'|'+p[1];
+    if(existing.has(key)){dup++;continue;}
+    const lv=p[3]||'自定义';
+    const cat=p[4]||(lv==='自定义'?'自定义':lv);
+    items.push({w:p[0],k:p[1],m:p[2],lv,cat});
+    existing.add(key);
+  }
+  return {items,bad,dup};
+}
+el.importArea.addEventListener('input',()=>{
+  const text=el.importArea.value.trim();
+  if(!text){el.importPreview.textContent='尚未解析';return;}
+  const r=parseImport(text);
+  el.importPreview.textContent='解析结果：可导入 '+r.items.length+' 条'+
+    (r.dup?' · 重复 '+r.dup+' 条':'')+(r.bad?' · 格式有误 '+r.bad+' 行':'');
+});
+el.btnImport.addEventListener('click',()=>{
+  const text=el.importArea.value.trim();
+  if(!text){toast('请先粘贴单词内容');return;}
+  const r=parseImport(text);
+  if(!r.items.length){
+    toast('没有可导入的有效单词'+
+      (r.dup?'（'+r.dup+' 条已存在）':'')+(r.bad?'（'+r.bad+' 行格式有误）':''));
+    return;
+  }
+  CUSTOM_WORDS=CUSTOM_WORDS.concat(r.items);
+  saveCustom();rebuildWords();
+  el.importArea.value='';el.importPreview.textContent='尚未解析';
+  renderLibList();renderPracticeChips();renderWord();
+  toast('成功导入 '+r.items.length+' 个单词'+
+    (r.dup?'，跳过 '+r.dup+' 条重复':'')+(r.bad?'，'+r.bad+' 行格式有误':''));
+});
+
+/* =========================================================
+   11. 大学
+   ========================================================= */
+function renderUnis(){
+  el.uniList.innerHTML=UNIVERSITIES.map(u=>
+    '<div class="uni"><div class="uni-rank">'+u.rank+'</div>'+
+      '<div class="uni-body">'+
+        '<div class="uni-ja">'+u.ja+'</div>'+
+        '<div class="uni-kana">'+u.kana+'</div>'+
+        '<div class="uni-cn">'+u.cn+'</div>'+
+        '<div class="uni-desc">'+u.desc+'</div>'+
+        '<span class="uni-tag'+(u.tag==='私立'?' private':'')+'">'+u.tag+'</span>'+
+      '</div></div>'
+  ).join('');
+}
+
+/* =========================================================
+   12. 导航
+   ========================================================= */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const page=btn.dataset.page;
+    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));
+    document.querySelectorAll('.page').forEach(p=>{
+      p.classList.toggle('active',p.id==='page-'+page);
+    });
+    window.scrollTo({top:0,behavior:'auto'});
+    if(page==='progress')renderStats();
+    if(page==='uni')renderUnis();
+    if(page==='library'){renderLibChips();renderLibList();}
+  });
+});
+window.addEventListener('scroll',()=>{
+  el.topbar.classList.toggle('scrolled',window.scrollY>4);
+},{passive:true});
+
+/* =========================================================
+   13. 设置
+   ========================================================= */
+el.swKana.checked=!!state.settings.showKana;
+el.swAuto.checked=state.settings.autoNext!==false;
+el.swKana.addEventListener('change',()=>{
+  state.settings.showKana=el.swKana.checked;saveState();updateKana();
+  toast(el.swKana.checked?'已开启常显假名':'已关闭常显假名');
+});
+el.swAuto.addEventListener('change',()=>{
+  state.settings.autoNext=el.swAuto.checked;saveState();
+  toast(el.swAuto.checked?'答对后自动换词':'答对后需手动点下一题');
+});
+el.btnExport.addEventListener('click',()=>{
+  const data={exportedAt:new Date().toISOString(),
+    summary:{totalReps:state.totalReps,totalCorrect:state.totalCorrect,
+      learnedWords:countLearned(),librarySize:WORDS.length,
+      customWords:CUSTOM_WORDS.length},
+    stats:state.stats,milestones:state.milestones,customWords:CUSTOM_WORDS};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');const d=new Date();
+  a.href=url;
+  a.download='jp-typing-progress-'+
+    d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast('进度已导出');
+});
+el.btnReset.addEventListener('click',()=>{
+  if(!confirm('确定要清空全部学习记录吗？\n（自定义导入的单词会保留）'))return;
+  const keep=CUSTOM_WORDS.slice();
+  state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+  state.today=todayStr();saveState();
+  CUSTOM_WORDS=keep;rebuildWords();
+  renderStats();updateMiniStat();renderWord();renderLibList();
+  toast('学习记录已清空');
+});
+el.btnResetAll.addEventListener('click',()=>{
+  if(!confirm('确定要恢复出厂设置吗？\n学习记录和自定义单词都会被清空。'))return;
+  state=JSON.parse(JSON.stringify(DEFAULT_STATE));
+  state.today=todayStr();
+  CUSTOM_WORDS=[];saveState();saveCustom();rebuildWords();
+  renderStats();updateMiniStat();renderWord();
+  renderPracticeChips();renderLibChips();renderLibList();
+  toast('已恢复出厂设置');
+});
+
+/* =========================================================
+   14. 启动
+   ========================================================= */
+function init(){
+  loadAll();
+  el.swKana.checked=!!state.settings.showKana;
+  el.swAuto.checked=state.settings.autoNext!==false;
+  renderPracticeChips();renderWord();updateMiniStat();
+  renderStats();renderUnis();renderLibChips();renderLibList();
+}
+init();
+</script>
+</body>
+</html>
